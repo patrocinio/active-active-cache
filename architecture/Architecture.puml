@@ -1,0 +1,38 @@
+@startuml ActiveActiveCache_Architecture
+
+' Amazon page: https://plantuml.biz/
+
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v16.0/dist
+!include AWSPuml/AWSCommon.puml
+
+!include AWSPuml/ApplicationIntegration/SimpleNotificationService.puml
+!include AWSPuml/ApplicationIntegration/SimpleQueueService.puml
+
+!include AWSPuml/Groups/Region.puml
+!include AWSPuml/Groups/AWSCloud.puml
+
+!include AWSPuml/Database/ElastiCache.puml
+
+left to right direction
+
+agent "Authorization" as auth
+
+RegionGroup(us-east-1, "us-east-1") {
+    SimpleNotificationService(sns, "SNS", "SNS")
+    SimpleQueueService(eastQueue, "us-east-1 SQS", "SQS")
+    ElastiCache(eastCache, "us-east-1 Cache", "Redis")
+}
+
+RegionGroup(us-west-2, "us-west-2") {
+    SimpleQueueService(westQueue, "us-west-2 SQS", "SQS")
+    ElastiCache(westCache, "us-west-2 Cache", "Redis")
+
+}
+
+auth --> sns
+sns --> eastQueue
+sns --> westQueue
+eastQueue --> eastCache
+westQueue --> westCache
+
+@enduml
