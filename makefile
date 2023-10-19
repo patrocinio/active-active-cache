@@ -1,4 +1,4 @@
-deploy: synth
+deploy: bootstrap synth
 	cd solution; cdk deploy --require-approval never
 
 synth:
@@ -15,3 +15,6 @@ bootstrap:
 
 delete:
 	aws cloudformation delete-stack --stack-name SolutionStack
+
+set_region:
+	aws configure set default.region us-west-2
