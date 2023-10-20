@@ -26,6 +26,8 @@ Resources:
           Properties:
             Path: /send
             Method: get
+      Policies:
+      - AmazonSNSFullAccess
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
