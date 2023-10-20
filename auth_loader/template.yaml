@@ -17,6 +17,7 @@ Resources:
       CodeUri: loader/
       Handler: app.lambdaHandler
       Runtime: nodejs18.x
+      Timeout: 600
       Architectures:
         - x86_64
       Events:
