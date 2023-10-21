@@ -3,7 +3,8 @@ import { Construct } from 'constructs';
 import { Vpc } from 'aws-cdk-lib/aws-ec2';
 import * as Sns from 'aws-cdk-lib/aws-sns';
 import * as Sqs from 'aws-cdk-lib/aws-sqs';
-import { aws_elasticache as ElastiCache } from 'aws-cdk-lib'
+import { aws_elasticache as ElastiCache } from 'aws-cdk-lib';
+import * as SnsSubscription from 'aws-cdk-lib/aws-sns-subscriptions';
 
 export class SolutionStack extends cdk.Stack {
   private vpc: Vpc;
@@ -21,6 +22,10 @@ export class SolutionStack extends cdk.Stack {
 
   private createSqs() {
     this.sqs = new Sqs.Queue (this, 'Same Region Queue');
+  }
+
+  private subscribeToSns() {
+    this.topic.addSubscription(new SnsSubscription.SqsSubscription(this.sqs));
   }
 
   private createElastiCache() {
@@ -45,6 +50,7 @@ export class SolutionStack extends cdk.Stack {
     this.createVpc();
     this.createSns();
     this.createSqs();
+    this.subscribeToSns();
     this.createElastiCache();
   }
 }
