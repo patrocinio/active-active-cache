@@ -15,9 +15,13 @@ import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
 export const snsClient = new SNSClient({});
 
 async function publishMessage() {
+    const topicArn = process.env.TOPIC_ARN;
+
+    console.log ("publishMessage topicArn: ", topicArn);
+
     const command = new PublishCommand({
         Message: "Hello from SNS!",
-        TopicArn: "arn:aws:sns:us-west-2:464940127111:SolutionStack-AuthorizationAE2C3694-OsbBIw6oLaf0",
+        TopicArn: topicArn,
         MessageAttributes: {
             "Account": {
                 DataType: "String",

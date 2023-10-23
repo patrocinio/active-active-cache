@@ -28,6 +28,10 @@ Resources:
             Method: get
       Policies:
       - AmazonSNSFullAccess
+      Environment:
+        Variables:
+          TOPIC_ARN: "arn:aws:sns:us-west-2:464940127111:SolutionStack-AuthorizationAE2C3694-OsbBIw6oLaf0"
+
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
