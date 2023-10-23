@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "esbuild": "^0.14.14",
-    "@aws-sdk/client-sns": "*"
+    "redis": "*"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.92",

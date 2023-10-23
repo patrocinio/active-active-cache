@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
-import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
+import { createClient } from 'redis';
 
 /**
  *
@@ -12,18 +12,18 @@ import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
  *
  */
 
-export const snsClient = new SNSClient({});
-
 async function publishMessage() {
-    const command = new PublishCommand({
-        Message: "Hello from SNS!",
-        TopicArn: "arn:aws:sns:us-west-2:464940127111:SolutionStack-AuthorizationAE2C3694-M1F93kT5qDG1"
-    });
+    const client = await createClient({
+        url: "redis://sor17be9bvaug2r0.oht2jg.ng.0001.usw2.cache.amazonaws.com:6379"
+    })
+      .on('error', err => console.log('Redis Client Error', err))
+    .connect();
 
-    const response = await snsClient.send(command);
-    console.log ("Response: ", response);
+    await client.set('key', Date.now());
+    const value = await client.get('key');
+    await client.disconnect();
 
-    return response;
+    return value;
 }
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
