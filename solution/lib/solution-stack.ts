@@ -32,7 +32,6 @@ export class SolutionStack extends cdk.Stack {
     const groupName = "ElastiCacheSubnetGroup";
     const securityGroupName = "ElastiCacheSecurityGroup";
 
-    /*
     const subnetGroup = new ElastiCache.CfnSubnetGroup(this, "ElastiCacheSubnetGroup", {
       cacheSubnetGroupName: groupName,
       subnetIds: ["subnet-0cf2262ab7be597f5", "subnet-08fe11dcd51909f11"],
@@ -47,6 +46,9 @@ export class SolutionStack extends cdk.Stack {
     });
     securityGroup.addIngressRule(EC2.Peer.anyIpv4(), EC2.Port.tcp(6379), "Redis port");
 
+    console.log ("createElasticCache securityGroup: ", securityGroup);
+
+    /*
     this.cache = new ElastiCache.CfnCacheCluster (this, "ElastiCache", {
       cacheNodeType: 'cache.t2.small',
       engine: 'redis',
@@ -56,11 +58,13 @@ export class SolutionStack extends cdk.Stack {
     });*/
 
     this.cache = new ElastiCache.CfnReplicationGroup(this, "ReplicationGroup", {
-      replicationGroupDescription: "Replication Group",
+      replicationGroupDescription: "Elastic Cache Replication Group",
       numCacheClusters: 1,
       automaticFailoverEnabled: false,
       engine: 'redis',
       cacheNodeType: 'cache.t2.small',
+      cacheSubnetGroupName: subnetGroup.ref,
+      securityGroupIds:[securityGroup.securityGroupId],
     });
 
   }
