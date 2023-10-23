@@ -16,6 +16,9 @@ synth:
 build:
 	cd solution; npm run build
 
+destroy:
+	cd solution; cdk destroy --require-approval never
+
 init:
 	cd solution; cdk init app --language=typescript
 
