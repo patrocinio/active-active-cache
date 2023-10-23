@@ -10,7 +10,7 @@ export class SolutionStack extends cdk.Stack {
   private vpc: EC2.Vpc;
   private topic: Sns.Topic;
   private sqs: Sqs.Queue;
-  private cache: ElastiCache.CfnCacheCluster;
+  private cache: ElastiCache.CfnReplicationGroup;
 
   private createVpc() {
     this.vpc = new EC2.Vpc (this, 'card-auth');
@@ -32,13 +32,13 @@ export class SolutionStack extends cdk.Stack {
     const groupName = "ElastiCacheSubnetGroup";
     const securityGroupName = "ElastiCacheSecurityGroup";
 
+    /*
     const subnetGroup = new ElastiCache.CfnSubnetGroup(this, "ElastiCacheSubnetGroup", {
       cacheSubnetGroupName: groupName,
-      subnetIds: ["subnet-0facd140cc6ac14bf"],
+      subnetIds: ["subnet-0cf2262ab7be597f5", "subnet-08fe11dcd51909f11"],
       description: "ElastiCache Subnet Group"
     })
 
-    /*
     const securityGroup = new EC2.SecurityGroup(this, securityGroupName, {
       vpc: this.vpc,
       allowAllOutbound: true,
@@ -46,25 +46,31 @@ export class SolutionStack extends cdk.Stack {
       securityGroupName: securityGroupName
     });
     securityGroup.addIngressRule(EC2.Peer.anyIpv4(), EC2.Port.tcp(6379), "Redis port");
-    */
 
     this.cache = new ElastiCache.CfnCacheCluster (this, "ElastiCache", {
       cacheNodeType: 'cache.t2.small',
       engine: 'redis',
       numCacheNodes: 1,
-//      vpcSecurityGroupIds: [securityGroup.securityGroupId],
-//      cacheSubnetGroupName: subnetGroup
-      cacheSecurityGroupNames: ["default"],
+      vpcSecurityGroupIds: [securityGroup.securityGroupId],
+      cacheSubnetGroupName: subnetGroup.ref
+    });*/
+
+    this.cache = new ElastiCache.CfnReplicationGroup(this, "ReplicationGroup", {
+      replicationGroupDescription: "Replication Group",
+      numCacheClusters: 1,
+      automaticFailoverEnabled: false,
+      engine: 'redis',
+      cacheNodeType: 'cache.t2.small',
     });
-    
+
   }
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
     this.createVpc();
-    this.createSns();
-    this.createSqs();
-    this.subscribeToSns();
+//    this.createSns();
+//    this.createSqs();
+//    this.subscribeToSns();
     this.createElastiCache();
   }
 }
