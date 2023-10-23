@@ -72,9 +72,9 @@ export class SolutionStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
     this.createVpc();
-//    this.createSns();
-//    this.createSqs();
-//    this.subscribeToSns();
+    this.createSns();
+    this.createSqs();
+    this.subscribeToSns();
     this.createElastiCache();
   }
 }

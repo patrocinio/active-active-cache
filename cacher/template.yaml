@@ -15,19 +15,43 @@ Resources:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: loader/
-      Handler: app.lambdaHandler
+      Handler: app.apiHandler
       Runtime: nodejs18.x
       Timeout: 600
       Architectures:
         - x86_64
       Events:
-        HelloWorld:
+        Api:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /save
             Method: get
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints: 
+        - app.ts
+  QueueFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: loader/
+      Handler: app.queueHandler
+      Runtime: nodejs18.x
+      Timeout: 30
+      Architectures:
+        - x86_64
+      Events:
+        QueueEvent:
+          Type: SQS # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Queue: arn:aws:sqs:us-west-2:464940127111:SolutionStack-SameRegionQueue5EA47706-NStTEsJWJpzW
       Policies:
-      - AmazonSNSFullAccess
+      - AmazonSQSFullAccess
+      - AmazonEC2FullAccess
+
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:

@@ -17,11 +17,21 @@ export const snsClient = new SNSClient({});
 async function publishMessage() {
     const command = new PublishCommand({
         Message: "Hello from SNS!",
-        TopicArn: "arn:aws:sns:us-west-2:464940127111:SolutionStack-AuthorizationAE2C3694-M1F93kT5qDG1"
+        TopicArn: "arn:aws:sns:us-west-2:464940127111:SolutionStack-AuthorizationAE2C3694-OsbBIw6oLaf0",
+        MessageAttributes: {
+            "Account": {
+                DataType: "String",
+                StringValue: "1"
+            },
+            "Data": {
+                DataType: "String",
+                StringValue: Date.now().toString()
+            }
+        }
     });
 
     const response = await snsClient.send(command);
-    console.log ("Response: ", response);
+    console.log ("publishMessage Response: ", response);
 
     return response;
 }
