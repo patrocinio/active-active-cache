@@ -1,6 +1,9 @@
 all:
 	echo Specify which command
 
+arch:
+	cd architecture; java -jar plantuml-1.2023.11.jar Architecture.puml
+
 bootstrap:
 	cd solution; cdk bootstrap
 

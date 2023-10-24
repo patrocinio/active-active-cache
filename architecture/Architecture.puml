@@ -11,28 +11,33 @@
 !include AWSPuml/Groups/Region.puml
 !include AWSPuml/Groups/AWSCloud.puml
 
+!include AWSPuml/Compute/Lambda.puml
+
 !include AWSPuml/Database/ElastiCache.puml
 
 left to right direction
 
-agent "Authorization" as auth
+Lambda(auth_loader, "Authorization Loader", "Lambda")
 
 RegionGroup(us-east-1, "us-east-1") {
     SimpleNotificationService(sns, "SNS", "SNS")
     SimpleQueueService(eastQueue, "us-east-1 SQS", "SQS")
+    Lambda(eastCacher, "us-east-1 Lambda Cacher", "Lambda")
     ElastiCache(eastCache, "us-east-1 Cache", "Redis")
 }
 
 RegionGroup(us-west-2, "us-west-2") {
     SimpleQueueService(westQueue, "us-west-2 SQS", "SQS")
+    Lambda(westCacher, "us-west-2 Lambda Cacher", "Lambda")
     ElastiCache(westCache, "us-west-2 Cache", "Redis")
-
 }
 
-auth --> sns
+auth_loader --> sns
 sns --> eastQueue
 sns --> westQueue
-eastQueue --> eastCache
-westQueue --> westCache
+eastQueue --> eastCacher
+eastCacher --> eastCache
+westQueue --> westCacher
+westCacher --> westCache
 
 @enduml

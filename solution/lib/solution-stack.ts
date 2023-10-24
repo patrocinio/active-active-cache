@@ -48,21 +48,12 @@ export class SolutionStack extends cdk.Stack {
 
     console.log ("createElasticCache securityGroup: ", securityGroup);
 
-    /*
-    this.cache = new ElastiCache.CfnCacheCluster (this, "ElastiCache", {
-      cacheNodeType: 'cache.t2.small',
-      engine: 'redis',
-      numCacheNodes: 1,
-      vpcSecurityGroupIds: [securityGroup.securityGroupId],
-      cacheSubnetGroupName: subnetGroup.ref
-    });*/
-
     this.cache = new ElastiCache.CfnReplicationGroup(this, "ReplicationGroup", {
       replicationGroupDescription: "Elastic Cache Replication Group",
       numCacheClusters: 1,
       automaticFailoverEnabled: false,
       engine: 'redis',
-      cacheNodeType: 'cache.t2.small',
+      cacheNodeType: 'cache.m7g.large',
       cacheSubnetGroupName: subnetGroup.ref,
       securityGroupIds:[securityGroup.securityGroupId],
     });
