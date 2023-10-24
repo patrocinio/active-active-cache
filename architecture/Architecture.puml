@@ -22,12 +22,14 @@ Lambda(auth_loader, "Authorization Loader", "Lambda")
 RegionGroup(us-east-1, "us-east-1") {
     SimpleNotificationService(sns, "SNS", "SNS")
     SimpleQueueService(eastQueue, "us-east-1 SQS", "SQS")
+    SimpleQueueService(eastDLQ, "us-east-1 Dead-letter Queue", "SQS")
     Lambda(eastCacher, "us-east-1 Lambda Cacher", "Lambda")
     ElastiCache(eastCache, "us-east-1 Cache", "Redis")
 }
 
 RegionGroup(us-west-2, "us-west-2") {
     SimpleQueueService(westQueue, "us-west-2 SQS", "SQS")
+    SimpleQueueService(westDLQ, "us-east-1 Dead-letter Queue", "SQS")
     Lambda(westCacher, "us-west-2 Lambda Cacher", "Lambda")
     ElastiCache(westCache, "us-west-2 Cache", "Redis")
 }
@@ -35,9 +37,13 @@ RegionGroup(us-west-2, "us-west-2") {
 auth_loader --> sns
 sns --> eastQueue
 sns --> westQueue
+
 eastQueue --> eastCacher
+eastQueue --> eastDLQ
 eastCacher --> eastCache
+
 westQueue --> westCacher
+westQueue --> westDLQ
 westCacher --> westCache
 
 @enduml

@@ -20,8 +20,17 @@ export class SolutionStack extends cdk.Stack {
     this.topic = new Sns.Topic(this, 'Authorization')
   }
 
-  private createSqs() {
-    this.sqs = new Sqs.Queue (this, 'Same Region Queue');
+  private createDLQ() {
+    return new Sqs.Queue (this, 'DLQ');
+  }
+
+  private createSqs(dlq: Sqs.Queue) {
+    this.sqs = new Sqs.Queue (this, 'Same Region Queue', {
+      deadLetterQueue: {
+        queue: dlq,
+        maxReceiveCount: 1
+      }
+    });
   }
 
   private subscribeToSns() {
@@ -64,7 +73,8 @@ export class SolutionStack extends cdk.Stack {
     super(scope, id, props);
     this.createVpc();
     this.createSns();
-    this.createSqs();
+    const dlq = this.createDLQ();
+    this.createSqs(dlq);
     this.subscribeToSns();
     this.createElastiCache();
   }
