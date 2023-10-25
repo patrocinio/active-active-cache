@@ -17,7 +17,7 @@ Resources:
       CodeUri: loader/
       Handler: app.apiHandler
       Runtime: nodejs18.x
-      Timeout: 600
+      Timeout: 300
       Architectures:
         - x86_64
       Events:
