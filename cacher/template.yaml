@@ -26,6 +26,11 @@ Resources:
           Properties:
             Path: /save
             Method: get
+      VpcConfig:
+        SecurityGroupIds:
+        - sg-039602ab7004a11fa
+        SubnetIds:
+        - subnet-0cf15d5fcadc4bc9e
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
@@ -51,6 +56,12 @@ Resources:
       Policies:
       - AmazonSQSFullAccess
       - AmazonEC2FullAccess
+      VpcConfig:
+        SecurityGroupIds:
+        - sg-039602ab7004a11fa
+        SubnetIds:
+        - subnet-0cf15d5fcadc4bc9e
+
 
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
