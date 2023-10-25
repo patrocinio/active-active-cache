@@ -2,6 +2,10 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, SQSEvent } from 'aws-lambd
 
 import { createClient } from 'redis';
 
+const redisURL = process.env.REDIS_URL;
+
+console.log ("Redis URL: ", redisURL);
+
 /**
  *
  * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
@@ -16,7 +20,7 @@ async function publishMessage(account: string, data: string) {
     console.log ("publishMessage account: ", account, " data: ", data);
 
     const client = await createClient({
-        url: "redis://sor17be9bvaug2r0.oht2jg.ng.0001.usw2.cache.amazonaws.com:6379"
+        url: redisURL
     })
       .on('error', err => console.log('Redis Client Error', err))
     .connect();

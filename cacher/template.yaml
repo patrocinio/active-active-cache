@@ -31,6 +31,10 @@ Resources:
         - sg-039602ab7004a11fa
         SubnetIds:
         - subnet-0cf15d5fcadc4bc9e
+      Environment:
+        Variables:
+          REDIS_URL: "redis://sor17be9bvaug2r0.oht2jg.ng.0001.usw2.cache.amazonaws.com:6379"
+
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
@@ -61,6 +65,9 @@ Resources:
         - sg-039602ab7004a11fa
         SubnetIds:
         - subnet-0cf15d5fcadc4bc9e
+      Environment:
+        Variables:
+          REDIS_URL: "redis://sor17be9bvaug2r0.oht2jg.ng.0001.usw2.cache.amazonaws.com:6379"
 
 
     Metadata: # Manage esbuild properties
