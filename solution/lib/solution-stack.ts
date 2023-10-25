@@ -33,8 +33,10 @@ export class SolutionStack extends cdk.Stack {
     });
   }
 
-  private subscribeToSns() {
-    this.topic.addSubscription(new SnsSubscription.SqsSubscription(this.sqs));
+  private subscribeToSns(dlq: Sqs.Queue) {
+    this.topic.addSubscription(new SnsSubscription.SqsSubscription(this.sqs, {
+      deadLetterQueue: dlq
+    }));
   }
 
   private createElastiCache() {
@@ -75,7 +77,7 @@ export class SolutionStack extends cdk.Stack {
     this.createSns();
     const dlq = this.createDLQ();
     this.createSqs(dlq);
-    this.subscribeToSns();
+    this.subscribeToSns(dlq);
     this.createElastiCache();
   }
 }
