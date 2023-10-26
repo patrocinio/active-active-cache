@@ -11,6 +11,7 @@ export class SolutionStack extends cdk.Stack {
   private topic: Sns.Topic;
   private sqs: Sqs.Queue;
   private cache: ElastiCache.CfnReplicationGroup;
+//  private cache: ElastiCache.CfnCacheCluster;
 
   private createVpc() {
     this.vpc = new EC2.Vpc (this, 'card-auth');
@@ -58,6 +59,16 @@ export class SolutionStack extends cdk.Stack {
     securityGroup.addIngressRule(EC2.Peer.anyIpv4(), EC2.Port.tcp(6379), "Redis port");
 
     console.log ("createElasticCache securityGroup: ", securityGroup);
+
+    /*
+    this.cache = new ElastiCache.CfnCacheCluster(this, "CacheCluster", {
+      cacheNodeType: 'cache.m7g.large',
+      engine: 'redis',
+      numCacheNodes: 1,
+      cacheSubnetGroupName: subnetGroup.ref,
+      vpcSecurityGroupIds:[securityGroup.securityGroupId],
+    });
+    */
 
     this.cache = new ElastiCache.CfnReplicationGroup(this, "ReplicationGroup", {
       replicationGroupDescription: "Elastic Cache Replication Group",

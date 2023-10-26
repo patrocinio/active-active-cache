@@ -35,7 +35,8 @@ loader_deploy: loader_build
 	cd auth_loader; sam deploy
 
 send_auth:
-	cd auth_loader; sam local invoke --debug
+	cd auth_loader; sam local invoke
+
 set_region:
 	aws configure set default.region us-west-2
 	
