@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'cacher
+
+  Queries data in ElastiCache
+
+  '
+Globals:
+  Function:
+    Timeout: 3
+Resources:
+  QueryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: QueryFunction
+      Handler: app.apiHandler
+      Runtime: nodejs18.x
+      Timeout: 300
+      Architectures:
+      - x86_64
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /query
+            Method: get
+      VpcConfig:
+        SecurityGroupIds:
+        - sg-039602ab7004a11fa
+        SubnetIds:
+        - subnet-0cf15d5fcadc4bc9e
+      Environment:
+        Variables:
+          REDIS_URL: redis://sor9h6tw3orjyb2.oht2jg.ng.0001.usw2.cache.amazonaws.com:6379
+          NODE_OPTIONS: ' --enable-source-maps'
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        EntryPoints:
+        - app.ts
+        Minify: true
+        Sourcemap: true
+        Target: es2020
+      SamResourceId: QueryFunction
+Outputs:
+  HelloWorldApi:
+    Description: API Gateway endpoint URL for Prod stage for Hello World function
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/query/
+  HelloWorldFunction:
+    Description: Loader Function ARN
+    Value:
+      Fn::GetAtt:
+      - QueryFunction
+      - Arn

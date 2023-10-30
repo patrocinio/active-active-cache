@@ -34,6 +34,15 @@ loader_delete:
 loader_deploy: loader_build
 	cd auth_loader; sam deploy
 
+query_build:
+	cd elasticache_query; sam build
+
+query_deploy: query_build
+	cd elasticache_query; sam deploy
+
+run_query:
+	cd elasticache_query; sam local invoke
+
 send_auth:
 	cd auth_loader; sam local invoke
 

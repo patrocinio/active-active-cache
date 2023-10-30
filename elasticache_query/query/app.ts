@@ -1,11 +1,8 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult, SQSEvent } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 import { createClient } from 'redis';
 
 const redisURL = process.env.REDIS_URL;
-
-console.log ("Redis URL: ", redisURL);
-
 /**
  *
  * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
@@ -16,25 +13,29 @@ console.log ("Redis URL: ", redisURL);
  *
  */
 
-async function publishMessage(account: string, data: string) {
-    console.log ("publishMessage account: ", account, " data: ", data);
-
+async function queryRedis() {
     const client = await createClient({
         url: redisURL
     })
       .on('error', (err: any) => console.log('Redis Client Error', err))
     .connect();
 
-    await client.set(account, data);
-    const value = await client.get('key');
-    await client.disconnect();
+    const result = []
+    for await (const key of client.scanIterator()) {
+        const value = await client.get(key);
+        console.log ("queryRedis key: ", key, " value: ", value);
+        result.push ({
+            key: key,
+            value: value
+        });
+    }
+    return result;
 
-    return value;
 }
 
 export const apiHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     try {
-        const response = await publishMessage("0", Date.now().toString());
+        const response = await queryRedis();
 
         return {
             statusCode: 200,
@@ -50,22 +51,5 @@ export const apiHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewa
                 message: 'some error happened',
             }),
         };
-    }
-};
-
-export const queueHandler = async (event: SQSEvent): Promise<void> => {
-    try {
-        for (const message of event.Records) {
-            const body = JSON.parse(message.body);
-
-            const attributes = body.MessageAttributes;
-
-            console.log ("queueHandler attributes: ", attributes)
-            console.log ("queueHandler attributes type: ", typeof attributes)
-
-            await publishMessage(attributes.Account.Value, attributes.Data.Value)
-        }
-    } catch (err) {
-        console.log(err);
     }
 };
