@@ -30,7 +30,7 @@ Resources:
         SecurityGroupIds:
         - sg-039602ab7004a11fa
         SubnetIds:
-        - subnet-0cf15d5fcadc4bc9e
+        - !ImportValue 'PrivateSubnet1'
       Environment:
         Variables:
           REDIS_URL: "redis://sor9h6tw3orjyb2.oht2jg.ng.0001.usw2.cache.amazonaws.com:6379"

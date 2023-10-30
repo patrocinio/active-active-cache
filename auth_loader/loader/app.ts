@@ -1,10 +1,6 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult, SQSEvent } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
-import { createClient } from 'redis';
-
-const redisURL = process.env.REDIS_URL;
-
-console.log ("Redis URL: ", redisURL);
+import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
 
 /**
  *
@@ -16,25 +12,37 @@ console.log ("Redis URL: ", redisURL);
  *
  */
 
-async function publishMessage(account: string, data: string) {
-    console.log ("publishMessage account: ", account, " data: ", data);
+export const snsClient = new SNSClient({});
 
-    const client = await createClient({
-        url: redisURL
-    })
-      .on('error', (err: any) => console.log('Redis Client Error', err))
-    .connect();
+async function publishMessage() {
+    const topicArn = process.env.TOPIC_ARN;
 
-    await client.set(account, data);
-    const value = await client.get('key');
-    await client.disconnect();
+    console.log ("publishMessage topicArn: ", topicArn);
 
-    return value;
+    const command = new PublishCommand({
+        Message: "Hello from SNS!",
+        TopicArn: topicArn,
+        MessageAttributes: {
+            "Account": {
+                DataType: "String",
+                StringValue: "1"
+            },
+            "Data": {
+                DataType: "String",
+                StringValue: Date.now().toString()
+            }
+        }
+    });
+
+    const response = await snsClient.send(command);
+    console.log ("publishMessage Response: ", response);
+
+    return response;
 }
 
-export const apiHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     try {
-        const response = await publishMessage("0", Date.now().toString());
+        const response = await publishMessage();
 
         return {
             statusCode: 200,
@@ -50,22 +58,5 @@ export const apiHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewa
                 message: 'some error happened',
             }),
         };
-    }
-};
-
-export const queueHandler = async (event: SQSEvent): Promise<void> => {
-    try {
-        for (const message of event.Records) {
-            const body = JSON.parse(message.body);
-
-            const attributes = body.MessageAttributes;
-
-            console.log ("queueHandler attributes: ", attributes)
-            console.log ("queueHandler attributes type: ", typeof attributes)
-
-            await publishMessage(attributes.Account.Value, attributes.Data.Value)
-        }
-    } catch (err) {
-        console.log(err);
     }
 };

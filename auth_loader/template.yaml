@@ -32,7 +32,7 @@ Resources:
         SecurityGroupIds:
         - sg-039602ab7004a11fa
         SubnetIds:
-        - subnet-0cf15d5fcadc4bc9e
+        - !ImportValue 'PrivateSubnet1'
       Environment:
         Variables:
           TOPIC_ARN: "arn:aws:sns:us-west-2:464940127111:SolutionStack-AuthorizationAE2C3694-OsbBIw6oLaf0"

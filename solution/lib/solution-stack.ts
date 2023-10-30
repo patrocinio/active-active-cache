@@ -82,6 +82,15 @@ export class SolutionStack extends cdk.Stack {
 
   }
 
+  private defineOutput() {
+
+    const output = new cdk.CfnOutput(this, 'PrivateSubnet1', {
+      value: this.vpc.privateSubnets[0].subnetId,
+      exportName: 'PrivateSubnet1'
+    });
+
+  }
+
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
     this.createVpc();
@@ -90,5 +99,6 @@ export class SolutionStack extends cdk.Stack {
     this.createSqs(dlq);
     this.subscribeToSns(dlq);
     this.createElastiCache();
+    this.defineOutput();
   }
 }
