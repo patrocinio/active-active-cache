@@ -22,7 +22,7 @@ async function publishMessage(account: string, data: string) {
     const client = await createClient({
         url: redisURL
     })
-      .on('error', err => console.log('Redis Client Error', err))
+      .on('error', (err: any) => console.log('Redis Client Error', err))
     .connect();
 
     await client.set(account, data);
