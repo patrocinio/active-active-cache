@@ -30,12 +30,12 @@ Resources:
       - AmazonSNSFullAccess
       VpcConfig:
         SecurityGroupIds:
-        - sg-039602ab7004a11fa
+        - !ImportValue 'SecurityGroupId'
         SubnetIds:
         - !ImportValue 'PrivateSubnet1'
       Environment:
         Variables:
-          TOPIC_ARN: "arn:aws:sns:us-west-2:464940127111:SolutionStack-AuthorizationAE2C3694-OsbBIw6oLaf0"
+          TOPIC_ARN: "arn:aws:sns:us-west-2:464940127111:SolutionStack-Message251322C6-yiMfoUe9Ybi5"
 
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild

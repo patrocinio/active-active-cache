@@ -28,9 +28,9 @@ Resources:
             Method: get
       VpcConfig:
         SecurityGroupIds:
-        - sg-039602ab7004a11fa
+        - !ImportValue 'SecurityGroupId'
         SubnetIds:
-        - subnet-0cf15d5fcadc4bc9e
+        - !ImportValue 'PrivateSubnet1'
       Environment:
         Variables:
           REDIS_URL: "redis://sor17be9bvaug2r0.oht2jg.ng.0001.usw2.cache.amazonaws.com:6379"
@@ -56,18 +56,18 @@ Resources:
         QueueEvent:
           Type: SQS # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Queue: arn:aws:sqs:us-west-2:464940127111:SolutionStack-SameRegionQueue5EA47706-NStTEsJWJpzW
+            Queue: arn:aws:sqs:us-west-2:464940127111:SolutionStack-SameRegionQueue5EA47706-tSjJ6phjruf9
       Policies:
       - AmazonSQSFullAccess
       - AmazonEC2FullAccess
       VpcConfig:
         SecurityGroupIds:
-        - sg-039602ab7004a11fa
+        - !ImportValue 'SecurityGroupId'
         SubnetIds:
         - !ImportValue 'PrivateSubnet1'
       Environment:
         Variables:
-          REDIS_URL: "redis://sor17be9bvaug2r0.oht2jg.ng.0001.usw2.cache.amazonaws.com:6379"
+          REDIS_URL: "redis://sor1art4b7obm4pk.oht2jg.ng.0001.usw2.cache.amazonaws.com:6379"
 
 
     Metadata: # Manage esbuild properties

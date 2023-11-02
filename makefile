@@ -47,7 +47,7 @@ query_deploy: query_build
 	cd elasticache_query; sam deploy
 
 run_query:
-	cd elasticache_query; sam local invoke
+	curl https://4pcxke1yt1.execute-api.us-west-2.amazonaws.com/Prod/query
 
 send_auth:
 	cd auth_loader; sam local invoke

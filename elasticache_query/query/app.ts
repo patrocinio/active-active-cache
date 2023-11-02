@@ -14,6 +14,8 @@ const redisURL = process.env.REDIS_URL;
  */
 
 async function queryRedis() {
+    console.log ("queryRedis connecting to ", redisURL);
+    
     const client = await createClient({
         url: redisURL
     })
