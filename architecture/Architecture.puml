@@ -38,6 +38,8 @@ auth_loader --> sns
 sns --> eastQueue
 sns --> westQueue
 
+
+sns --> eastDLQ
 eastQueue --> eastCacher
 eastQueue --> eastDLQ
 eastCacher --> eastCache

@@ -13,13 +13,16 @@ build:
 cacher_build: 
 	cd cacher; sam build
 
+cacher_delete:
+	cd cacher; sam delete --no-prompts
+
 cacher_deploy: cacher_build
 	cd cacher; sam deploy
 
 delete:
 	aws cloudformation delete-stack --stack-name SolutionStack
 
-destroy:
+destroy: cacher_delete query_delete loader_delete
 	cd solution; cdk destroy --require-approval never
 
 init:
@@ -29,13 +32,16 @@ loader_build:
 	cd auth_loader; sam build
 
 loader_delete:
-	cd auth_loader; sam delete
+	cd auth_loader; sam delete --no-prompts
 
 loader_deploy: loader_build
 	cd auth_loader; sam deploy
 
 query_build:
 	cd elasticache_query; sam build
+
+query_delete:
+	cd elasticache_query; sam delete --no-prompts
 
 query_deploy: query_build
 	cd elasticache_query; sam deploy

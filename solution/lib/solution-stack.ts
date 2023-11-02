@@ -11,14 +11,15 @@ export class SolutionStack extends cdk.Stack {
   private topic: Sns.Topic;
   private sqs: Sqs.Queue;
   private cache: ElastiCache.CfnReplicationGroup;
+  private securityGroup: EC2.SecurityGroup;
 //  private cache: ElastiCache.CfnCacheCluster;
 
   private createVpc() {
-    this.vpc = new EC2.Vpc (this, 'card-auth');
+    this.vpc = new EC2.Vpc (this, 'cache');
   }
 
   private createSns() {
-    this.topic = new Sns.Topic(this, 'Authorization')
+    this.topic = new Sns.Topic(this, 'Message')
   }
 
   private createDLQ() {
@@ -44,21 +45,28 @@ export class SolutionStack extends cdk.Stack {
     const groupName = "ElastiCacheSubnetGroup";
     const securityGroupName = "ElastiCacheSecurityGroup";
 
+    const subnetIds = [];
+    for (const subnet of this.vpc.privateSubnets) {
+      subnetIds.push(subnet.subnetId)
+    }
+
+
     const subnetGroup = new ElastiCache.CfnSubnetGroup(this, "ElastiCacheSubnetGroup", {
       cacheSubnetGroupName: groupName,
-      subnetIds: ["subnet-0cf2262ab7be597f5", "subnet-08fe11dcd51909f11"],
+      subnetIds: subnetIds,
       description: "ElastiCache Subnet Group"
     })
 
-    const securityGroup = new EC2.SecurityGroup(this, securityGroupName, {
+    this.securityGroup = new EC2.SecurityGroup(this, securityGroupName, {
       vpc: this.vpc,
       allowAllOutbound: true,
       description: "ElastiCache Security Group",
       securityGroupName: securityGroupName
     });
-    securityGroup.addIngressRule(EC2.Peer.anyIpv4(), EC2.Port.tcp(6379), "Redis port");
 
-    console.log ("createElasticCache securityGroup: ", securityGroup);
+    this.securityGroup.addIngressRule(EC2.Peer.anyIpv4(), EC2.Port.tcp(6379), "Redis port");
+
+    console.log ("createElasticCache securityGroup: ", this.securityGroup);
 
     /*
     this.cache = new ElastiCache.CfnCacheCluster(this, "CacheCluster", {
@@ -77,17 +85,22 @@ export class SolutionStack extends cdk.Stack {
       engine: 'redis',
       cacheNodeType: 'cache.m7g.large',
       cacheSubnetGroupName: subnetGroup.ref,
-      securityGroupIds:[securityGroup.securityGroupId],
+      securityGroupIds:[this.securityGroup.securityGroupId],
     });
 
   }
 
   private defineOutput() {
 
-    const output = new cdk.CfnOutput(this, 'PrivateSubnet1', {
+    const subnetOutput = new cdk.CfnOutput(this, 'PrivateSubnet1', {
       value: this.vpc.privateSubnets[0].subnetId,
       exportName: 'PrivateSubnet1'
     });
+
+    const securityGroupOutput = new cdk.CfnOutput(this, 'SecurityGroupId', {
+      exportName: 'SecurityGroupId',
+      value: this.securityGroup.securityGroupId
+    })
 
   }
 
