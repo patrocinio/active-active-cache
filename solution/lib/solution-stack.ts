@@ -90,12 +90,16 @@ export class SolutionStack extends cdk.Stack {
 
   }
 
-  private defineOutput() {
-
-    const subnetOutput = new cdk.CfnOutput(this, 'PrivateSubnet1', {
+  private exportPrivateSubnet(name: string) {
+    const subnetOutput = new cdk.CfnOutput(this, name, {
       value: this.vpc.privateSubnets[0].subnetId,
-      exportName: 'PrivateSubnet1'
+      exportName: name
     });
+  }
+
+  private defineOutput() {
+//    this.exportPrivateSubnet('PrivateSubnet1');
+    this.exportPrivateSubnet('CardAuthPrivateSubnet1');
 
     const securityGroupOutput = new cdk.CfnOutput(this, 'SecurityGroupId', {
       exportName: 'SecurityGroupId',

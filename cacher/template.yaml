@@ -30,7 +30,7 @@ Resources:
         SecurityGroupIds:
         - !ImportValue 'SecurityGroupId'
         SubnetIds:
-        - !ImportValue 'PrivateSubnet1'
+        - !ImportValue 'CardAuthPrivateSubnet1'
       Environment:
         Variables:
           REDIS_URL: "redis://sor17be9bvaug2r0.oht2jg.ng.0001.usw2.cache.amazonaws.com:6379"
@@ -64,7 +64,7 @@ Resources:
         SecurityGroupIds:
         - !ImportValue 'SecurityGroupId'
         SubnetIds:
-        - !ImportValue 'PrivateSubnet1'
+        - !ImportValue 'CardAuthPrivateSubnet1'
       Environment:
         Variables:
           REDIS_URL: "redis://sor1art4b7obm4pk.oht2jg.ng.0001.usw2.cache.amazonaws.com:6379"

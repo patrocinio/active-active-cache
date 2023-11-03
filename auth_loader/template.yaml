@@ -32,7 +32,7 @@ Resources:
         SecurityGroupIds:
         - !ImportValue 'SecurityGroupId'
         SubnetIds:
-        - !ImportValue 'PrivateSubnet1'
+        - !ImportValue 'CardAuthPrivateSubnet1'
       Environment:
         Variables:
           TOPIC_ARN: "arn:aws:sns:us-west-2:464940127111:SolutionStack-Message251322C6-yiMfoUe9Ybi5"
