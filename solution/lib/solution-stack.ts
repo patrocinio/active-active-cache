@@ -5,6 +5,7 @@ import * as Sns from 'aws-cdk-lib/aws-sns';
 import * as Sqs from 'aws-cdk-lib/aws-sqs';
 import { aws_elasticache as ElastiCache } from 'aws-cdk-lib';
 import * as SnsSubscription from 'aws-cdk-lib/aws-sns-subscriptions';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 
 export class SolutionStack extends cdk.Stack {
   private vpc: EC2.Vpc;
@@ -108,11 +109,20 @@ export class SolutionStack extends cdk.Stack {
 
   }
 
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  private createDLQAlarm (dlq: Sqs.Queue) {
+      const alarm = new cloudwatch.Alarm(this, 'DLQAlarm', {
+        metric: dlq.metricNumberOfMessagesReceived(),
+        threshold: 0,
+        evaluationPeriods: 1,
+      })
+  }
+
+constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
     this.createVpc();
     this.createSns();
     const dlq = this.createDLQ();
+    this.createDLQAlarm(dlq);
     this.createSqs(dlq);
     this.subscribeToSns(dlq);
     this.createElastiCache();
