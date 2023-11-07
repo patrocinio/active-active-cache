@@ -10,6 +10,11 @@ Globals:
   Function:
     Timeout: 3
 
+Parameters:
+  RedisURL:
+    Type: String
+    Description: Redis URL
+
 Resources:
   LoaderFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -33,7 +38,8 @@ Resources:
         - !ImportValue 'CardAuthPrivateSubnet1'
       Environment:
         Variables:
-          REDIS_URL: "redis://sor17be9bvaug2r0.oht2jg.ng.0001.usw2.cache.amazonaws.com:6379"
+          REDIS_URL: !Ref RedisURL
+#          REDIS_URL: "redis://sor17be9bvaug2r0.oht2jg.ng.0001.usw2.cache.amazonaws.com:6379"
 
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild

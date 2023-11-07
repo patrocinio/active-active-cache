@@ -99,13 +99,22 @@ export class SolutionStack extends cdk.Stack {
   }
 
   private defineOutput() {
-//    this.exportPrivateSubnet('PrivateSubnet1');
     this.exportPrivateSubnet('CardAuthPrivateSubnet1');
 
     const securityGroupOutput = new cdk.CfnOutput(this, 'SecurityGroupId', {
       exportName: 'SecurityGroupId',
       value: this.securityGroup.securityGroupId
     })
+
+    const replicationGroup = this.cache.replicationGroupDescription;
+
+    console.log ("defineOutput replication group: ", replicationGroup);
+    /*
+    const redisURL = new cdk.CfnOutput(this, 'RedisURL', {
+      exportName: 'CardAuthRedisURL',
+      value: this.cache
+    })
+    */
 
   }
 

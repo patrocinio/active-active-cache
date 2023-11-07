@@ -16,14 +16,24 @@ cacher_build:
 cacher_delete:
 	cd cacher; sam delete --no-prompts
 
-cacher_deploy: cacher_build
-	cd cacher; sam deploy
+cacher_deploy: cacher_build find_redis_url
+	cd cacher; sam deploy --parameter-overrides RedisURL=$(REDIS_ADDRESS)
 
 delete:
 	aws cloudformation delete-stack --stack-name SolutionStack
 
 destroy: cacher_delete query_delete loader_delete
 	cd solution; cdk destroy --require-approval never
+
+GET_REDIS_ADDRESS = $(shell jq .CacheClusters[0].CacheNodes[0].Endpoint.Address /tmp/x)
+SET_REDIS_ADDRESS = $(eval REDIS_ADDRESS=redis://$(GET_REDIS_ADDRESS):6379)
+
+find_redis_url:
+	aws elasticache describe-cache-clusters \
+	  --cache-cluster-id sor1art4b7obm4pk-001 \
+	  --show-cache-node-info --output json > /tmp/x
+	  $(SET_REDIS_ADDRESS)
+	  echo Redis: $(REDIS_ADDRESS)
 
 init:
 	cd solution; cdk init app --language=typescript
