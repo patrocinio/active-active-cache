@@ -25,6 +25,15 @@ delete:
 destroy: cacher_delete query_delete loader_delete
 	cd solution; cdk destroy --require-approval never
 
+
+GET_QUERY_URL = $(shell jq .Stacks[0].Outputs[0].OutputValue /tmp/x)
+SET_QUERY_URL = $(eval QUERY_URL=$(GET_QUERY_URL))
+
+find_query_url:
+	aws cloudformation describe-stacks --stack-name ecquery --output json > /tmp/x
+	$(SET_QUERY_URL)
+	@echo Query URL: $(QUERY_URL)
+
 GET_REDIS_ADDRESS = $(shell jq .CacheClusters[0].CacheNodes[0].Endpoint.Address /tmp/x)
 SET_REDIS_ADDRESS = $(eval REDIS_ADDRESS=redis://$(GET_REDIS_ADDRESS):6379)
 
@@ -56,8 +65,8 @@ query_delete:
 query_deploy: query_build
 	cd elasticache_query; sam deploy
 
-run_query:
-	curl https://4pcxke1yt1.execute-api.us-west-2.amazonaws.com/Prod/query
+run_query: find_query_url
+	curl $(QUERY_URL)
 
 send_auth:
 	cd auth_loader; sam local invoke

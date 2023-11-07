@@ -43,13 +43,7 @@ Resources:
         Target: es2020
       SamResourceId: QueryFunction
 Outputs:
-  HelloWorldApi:
+  QueryApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
     Value:
       Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/query/
-  HelloWorldFunction:
-    Description: Loader Function ARN
-    Value:
-      Fn::GetAtt:
-      - QueryFunction
-      - Arn
