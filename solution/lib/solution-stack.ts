@@ -112,7 +112,7 @@ export class SolutionStack extends cdk.Stack {
   private createDLQAlarm (dlq: Sqs.Queue) {
       const alarm = new cloudwatch.Alarm(this, 'DLQAlarm', {
         metric: dlq.metricNumberOfMessagesReceived(),
-        threshold: 0,
+        threshold: 1,
         evaluationPeriods: 1,
       })
   }
