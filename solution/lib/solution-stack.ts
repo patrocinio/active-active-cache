@@ -19,8 +19,8 @@ export class SolutionStack extends cdk.Stack {
     this.vpc = new EC2.Vpc (this, 'cache');
   }
 
-  private createSns() {
-    this.topic = new Sns.Topic(this, 'Message')
+  private createSns(topicName: string) {
+    return new Sns.Topic(this, topicName)
   }
 
   private createDLQ() {
@@ -36,7 +36,7 @@ export class SolutionStack extends cdk.Stack {
     });
   }
 
-  private subscribeToSns(dlq: Sqs.Queue) {
+  private subscribeSqsToSns(dlq: Sqs.Queue) {
     this.topic.addSubscription(new SnsSubscription.SqsSubscription(this.sqs, {
       deadLetterQueue: dlq
     }));
@@ -126,14 +126,20 @@ export class SolutionStack extends cdk.Stack {
       })
   }
 
+  private createEmailSubscription(topic: Sns.Topic) {
+    topic.addSubscription(new SnsSubscription.EmailSubscription('epatro+cache@gmail.com'));
+  }
+
 constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
     this.createVpc();
-    this.createSns();
+    this.topic = this.createSns('Message');
     const dlq = this.createDLQ();
     this.createDLQAlarm(dlq);
+    const alarmTopic = this.createSns('AlarmTopic');
+    this.createEmailSubscription(alarmTopic);
     this.createSqs(dlq);
-    this.subscribeToSns(dlq);
+    this.subscribeSqsToSns(dlq);
     this.createElastiCache();
     this.defineOutput();
   }
