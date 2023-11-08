@@ -8,6 +8,10 @@ Description: 'cacher
 Globals:
   Function:
     Timeout: 3
+Parameters:
+  RedisURL:
+    Type: String
+    Description: Redis URL
 Resources:
   QueryFunction:
     Type: AWS::Serverless::Function
@@ -31,7 +35,8 @@ Resources:
         - Fn::ImportValue: CardAuthPrivateSubnet1
       Environment:
         Variables:
-          REDIS_URL: redis://sor1art4b7obm4pk-ro.oht2jg.ng.0001.usw2.cache.amazonaws.com:6379
+          REDIS_URL:
+            Ref: RedisURL
           NODE_OPTIONS: ' --enable-source-maps'
     Metadata:
       BuildMethod: esbuild

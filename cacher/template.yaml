@@ -39,7 +39,6 @@ Resources:
       Environment:
         Variables:
           REDIS_URL: !Ref RedisURL
-#          REDIS_URL: "redis://sor17be9bvaug2r0.oht2jg.ng.0001.usw2.cache.amazonaws.com:6379"
 
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
@@ -56,6 +55,9 @@ Resources:
       Handler: app.queueHandler
       Runtime: nodejs18.x
       Timeout: 30
+      AutoPublishAlias: live
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: 1
       Architectures:
         - x86_64
       Events:
@@ -73,7 +75,7 @@ Resources:
         - !ImportValue 'CardAuthPrivateSubnet1'
       Environment:
         Variables:
-          REDIS_URL: "redis://sor1art4b7obm4pk.oht2jg.ng.0001.usw2.cache.amazonaws.com:6379"
+          REDIS_URL: !Ref RedisURL
 
 
     Metadata: # Manage esbuild properties

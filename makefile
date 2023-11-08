@@ -62,8 +62,8 @@ query_build:
 query_delete:
 	cd elasticache_query; sam delete --no-prompts
 
-query_deploy: query_build
-	cd elasticache_query; sam deploy
+query_deploy: query_build find_redis_url
+	cd elasticache_query; sam deploy --parameter-overrides RedisURL=$(REDIS_ADDRESS)
 
 run_query: find_query_url
 	curl $(QUERY_URL)
