@@ -39,7 +39,6 @@ SET_REDIS_ADDRESS = $(eval REDIS_ADDRESS=redis://$(GET_REDIS_ADDRESS):6379)
 
 find_redis_url:
 	aws elasticache describe-cache-clusters \
-	  --cache-cluster-id sor1art4b7obm4pk-001 \
 	  --show-cache-node-info --output json > /tmp/x
 	  $(SET_REDIS_ADDRESS)
 	  echo Redis: $(REDIS_ADDRESS)
