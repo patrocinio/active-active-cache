@@ -104,17 +104,12 @@ export class SolutionStack extends cdk.Stack {
     const securityGroupOutput = new cdk.CfnOutput(this, 'SecurityGroupId', {
       exportName: 'SecurityGroupId',
       value: this.securityGroup.securityGroupId
-    })
+    });
 
-    const replicationGroup = this.cache.replicationGroupDescription;
-
-    console.log ("defineOutput replication group: ", replicationGroup);
-    /*
-    const redisURL = new cdk.CfnOutput(this, 'RedisURL', {
-      exportName: 'CardAuthRedisURL',
-      value: this.cache
-    })
-    */
+    new cdk.CfnOutput(this, 'CardAuthQueueARN', {
+      exportName: 'CardAuthQueueARN',
+      value: this.sqs.queueArn
+    });
 
   }
 

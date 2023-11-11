@@ -64,7 +64,7 @@ Resources:
         QueueEvent:
           Type: SQS # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Queue: arn:aws:sqs:us-west-2:464940127111:SolutionStack-SameRegionQueue5EA47706-tSjJ6phjruf9
+            Queue: !ImportValue 'CardAuthQueueARN'
       Policies:
       - AmazonSQSFullAccess
       - AmazonEC2FullAccess
