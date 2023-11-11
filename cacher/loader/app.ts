@@ -29,6 +29,10 @@ async function publishMessage(account: string, data: string) {
     const value = await client.get('key');
     await client.disconnect();
 
+    const now = Date.now();
+    const delta = now - data;
+    console.log ("publishMessage now: ", now, " delta: ", delta);
+
     return value;
 }
 

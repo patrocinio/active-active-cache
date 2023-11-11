@@ -69,7 +69,6 @@ run_query: find_query_url
 
 send_auth:
 	cd auth_loader; sam local invoke
-
 set_region:
 	aws configure set default.region us-west-2
 	
