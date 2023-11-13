@@ -39,6 +39,8 @@ Resources:
       Environment:
         Variables:
           REDIS_URL: !Ref RedisURL
+      Policies:
+      - AdministratorAccess
 
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild

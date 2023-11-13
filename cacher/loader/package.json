@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "esbuild": "^0.14.14",
-    "redis": "*"
+    "redis": "*",
+    "@aws-sdk/client-cloudwatch": "*"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.92",

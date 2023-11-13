@@ -19,6 +19,9 @@ cacher_delete:
 cacher_deploy: cacher_build find_redis_url
 	cd cacher; sam deploy --parameter-overrides RedisURL=$(REDIS_ADDRESS)
 
+cacher_save:
+	curl https://ibtred047k.execute-api.us-west-2.amazonaws.com/Prod/save
+
 delete:
 	aws cloudformation delete-stack --stack-name SolutionStack
 
@@ -69,6 +72,7 @@ run_query: find_query_url
 
 send_auth:
 	cd auth_loader; sam local invoke
+
 set_region:
 	aws configure set default.region us-west-2
 	

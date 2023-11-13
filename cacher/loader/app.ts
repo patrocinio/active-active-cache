@@ -2,6 +2,8 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, SQSEvent } from 'aws-lambd
 
 import { createClient } from 'redis';
 
+import { CloudWatchClient, PutMetricDataCommand } from '@aws-sdk/client-cloudwatch';
+
 const redisURL = process.env.REDIS_URL;
 
 console.log ("Redis URL: ", redisURL);
@@ -16,7 +18,30 @@ console.log ("Redis URL: ", redisURL);
  *
  */
 
-async function publishMessage(account: string, data: string) {
+async function publishMetric(delta: number) {
+    const client = new CloudWatchClient();
+
+    const command = new PutMetricDataCommand({
+        MetricData: [{
+            MetricName: 'Cacher/Delay',
+            Dimensions: [
+                {
+                    Name: 'Delay',
+                    Value: 'Delay'
+                },
+            ],
+            Value: delta,
+            Unit: 'Milliseconds'
+        }],
+        Namespace: 'Cacher',
+    });
+
+    const response = await client.send(command);
+
+    console.log ("publishMetric response: ", response);
+}
+
+async function publishMessage(account: string, data: number) {
     console.log ("publishMessage account: ", account, " data: ", data);
 
     const client = await createClient({
@@ -33,12 +58,14 @@ async function publishMessage(account: string, data: string) {
     const delta = now - data;
     console.log ("publishMessage now: ", now, " delta: ", delta);
 
+    await publishMetric(delta);
+
     return value;
 }
 
 export const apiHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     try {
-        const response = await publishMessage("0", Date.now().toString());
+        const response = await publishMessage("0", Date.now());
 
         return {
             statusCode: 200,
