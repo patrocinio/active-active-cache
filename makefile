@@ -73,6 +73,9 @@ run_query: find_query_url
 send_auth:
 	cd auth_loader; sam local invoke
 
+auth_load_test:
+	ab -n 1000 https://bjksnyer27.execute-api.us-west-2.amazonaws.com/Prod/send 
+
 set_region:
 	aws configure set default.region us-west-2
 	
