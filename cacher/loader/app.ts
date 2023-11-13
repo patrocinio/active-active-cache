@@ -27,7 +27,7 @@ async function publishMetric(delta: number) {
             Dimensions: [
                 {
                     Name: 'Delay',
-                    Value: 'Delay'
+                    Value: 'us-east-1'
                 },
             ],
             Value: delta,
