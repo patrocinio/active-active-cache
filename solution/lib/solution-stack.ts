@@ -98,21 +98,21 @@ export class SolutionStack extends cdk.Stack {
     });
   }
 
-  private defineOutput(stackName: string) {
-    this.exportPrivateSubnet(stackName + 'CardAuthPrivateSubnet1');
+  private defineOutput() {
+    this.exportPrivateSubnet('CardAuthPrivateSubnet1');
 
-    const securityGroupOutput = new cdk.CfnOutput(this, stackName + 'SecurityGroupId', {
-      exportName: stackName + 'SecurityGroupId',
+    const securityGroupOutput = new cdk.CfnOutput(this, 'SecurityGroupId', {
+      exportName: 'SecurityGroupId',
       value: this.securityGroup.securityGroupId
     });
 
-    new cdk.CfnOutput(this, stackName + 'CardAuthQueueARN', {
-      exportName: stackName + 'CardAuthQueueARN',
+    new cdk.CfnOutput(this, 'CardAuthQueueARN', {
+      exportName: 'CardAuthQueueARN',
       value: this.sqs.queueArn
     });
 
-    new cdk.CfnOutput(this, stackName + 'SQS', {
-      exportName: stackName + 'SQS',
+    new cdk.CfnOutput(this, 'SQS', {
+      exportName: 'SQS',
       value: this.sqs.queueArn
     })
 
@@ -158,6 +158,6 @@ constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     }
 
     this.createElastiCache(stackName);
-    this.defineOutput(stackName);
+    this.defineOutput();
   }
 }

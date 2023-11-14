@@ -16,13 +16,13 @@ cacher_build:
 cacher_delete:
 	cd cacher; sam delete --no-prompts
 
-cacher_deploy: cacher_deploy_east cacher_deploy_west
+cacher_deploy: cacher_deploy_primary cacher_deploy_secondary
 
-cacher_deploy_east: set_region_us_east_2 cacher_build find_redis_url
-	cd cacher; sam deploy --parameter-overrides RedisURL=$(REDIS_ADDRESS) Prefix=Secondary --region us-east-2
-
-cacher_deploy_west: set_region_us_west_2 cacher_build find_redis_url
+cacher_deploy_primary: set_region_us_west_2 cacher_build find_redis_url
 	cd cacher; sam deploy --parameter-overrides RedisURL=$(REDIS_ADDRESS) --region us-west-2
+
+cacher_deploy_secondary: set_region_us_east_2 cacher_build find_redis_url
+	cd cacher; sam deploy --parameter-overrides RedisURL=$(REDIS_ADDRESS) --region us-east-2
 
 cacher_save:
 	curl https://ibtred047k.execute-api.us-west-2.amazonaws.com/Prod/save
@@ -72,14 +72,14 @@ query_delete:
 query_deploy: query_build find_redis_url
 	cd elasticache_query; sam deploy --parameter-overrides RedisURL=$(REDIS_ADDRESS)
 
-run_query: find_query_url
+run_query: set_region_us_west_2 find_query_url
 	curl $(QUERY_URL)
 
 send_auth:
 	cd auth_loader; sam local invoke
 
 auth_load_test:
-	ab -n 1000 https://bjksnyer27.execute-api.us-west-2.amazonaws.com/Prod/send 
+	ab -n 1000 https://fs4mfkm0pa.execute-api.us-west-2.amazonaws.com/Prod/send 
 
 set_region_us_east_2:
 	aws configure set default.region us-east-2

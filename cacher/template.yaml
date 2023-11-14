@@ -12,9 +12,6 @@ Parameters:
   RedisURL:
     Type: String
     Description: Redis URL
-  Prefix:
-    Type: String
-    Description: Environment prefix
 
 Resources:
   LoaderFunction:
@@ -34,9 +31,9 @@ Resources:
             Method: get
       VpcConfig:
         SecurityGroupIds:
-        - !ImportValue 'SecondarySecurityGroupId'
+        - !ImportValue 'SecurityGroupId'
         SubnetIds:
-        - !ImportValue 'SecondaryCardAuthPrivateSubnet1'
+        - !ImportValue 'CardAuthPrivateSubnet1'
       Environment:
         Variables:
           REDIS_URL: !Ref RedisURL
@@ -67,16 +64,15 @@ Resources:
         QueueEvent:
           Type: SQS # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Queue: 
-            - !ImportValue 'SecondaryCardAuthQueueARN'
+            Queue: !ImportValue 'CardAuthQueueARN'
       Policies:
       - AmazonSQSFullAccess
       - AmazonEC2FullAccess
       VpcConfig:
         SecurityGroupIds:
-        - !ImportValue 'SecondarySecurityGroupId'
+        - !ImportValue 'SecurityGroupId'
         SubnetIds:
-        - !ImportValue 'SecondaryCardAuthPrivateSubnet1'
+        - !ImportValue 'CardAuthPrivateSubnet1'
       Environment:
         Variables:
           REDIS_URL: !Ref RedisURL
