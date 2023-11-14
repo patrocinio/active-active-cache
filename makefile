@@ -76,7 +76,7 @@ run_query: set_region_us_west_2 find_query_url
 	curl $(QUERY_URL)
 
 send_auth:
-	cd auth_loader; sam local invoke
+	curl https://fs4mfkm0pa.execute-api.us-west-2.amazonaws.com/Prod/send
 
 auth_load_test:
 	ab -n 1000 https://fs4mfkm0pa.execute-api.us-west-2.amazonaws.com/Prod/send 
