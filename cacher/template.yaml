@@ -1,8 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  cacher
-
   Persists data in ElastiCache
   
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
@@ -14,6 +12,9 @@ Parameters:
   RedisURL:
     Type: String
     Description: Redis URL
+  Prefix:
+    Type: String
+    Description: Environment prefix
 
 Resources:
   LoaderFunction:
@@ -33,9 +34,9 @@ Resources:
             Method: get
       VpcConfig:
         SecurityGroupIds:
-        - !ImportValue 'SecurityGroupId'
+        - !ImportValue 'SecondarySecurityGroupId'
         SubnetIds:
-        - !ImportValue 'CardAuthPrivateSubnet1'
+        - !ImportValue 'SecondaryCardAuthPrivateSubnet1'
       Environment:
         Variables:
           REDIS_URL: !Ref RedisURL
@@ -66,15 +67,16 @@ Resources:
         QueueEvent:
           Type: SQS # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Queue: !ImportValue 'CardAuthQueueARN'
+            Queue: 
+            - !ImportValue 'SecondaryCardAuthQueueARN'
       Policies:
       - AmazonSQSFullAccess
       - AmazonEC2FullAccess
       VpcConfig:
         SecurityGroupIds:
-        - !ImportValue 'SecurityGroupId'
+        - !ImportValue 'SecondarySecurityGroupId'
         SubnetIds:
-        - !ImportValue 'CardAuthPrivateSubnet1'
+        - !ImportValue 'SecondaryCardAuthPrivateSubnet1'
       Environment:
         Variables:
           REDIS_URL: !Ref RedisURL

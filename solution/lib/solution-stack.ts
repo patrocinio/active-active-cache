@@ -36,15 +36,15 @@ export class SolutionStack extends cdk.Stack {
     });
   }
 
-  private subscribeSqsToSns(dlq: Sqs.Queue) {
-    this.topic.addSubscription(new SnsSubscription.SqsSubscription(this.sqs, {
+  private subscribeSqsToSns(queue: Sqs.IQueue, dlq: Sqs.Queue) {
+    this.topic.addSubscription(new SnsSubscription.SqsSubscription(queue, {
       deadLetterQueue: dlq
     }));
   }
 
-  private createElastiCache() {
-    const groupName = "ElastiCacheSubnetGroup";
-    const securityGroupName = "ElastiCacheSecurityGroup";
+  private createElastiCache(stackName: string) {
+    const groupName = stackName + "ElastiCacheSubnetGroup";
+    const securityGroupName = stackName + "ElastiCacheSecurityGroup";
 
     const subnetIds = [];
     for (const subnet of this.vpc.privateSubnets) {
@@ -98,18 +98,23 @@ export class SolutionStack extends cdk.Stack {
     });
   }
 
-  private defineOutput() {
-    this.exportPrivateSubnet('CardAuthPrivateSubnet1');
+  private defineOutput(stackName: string) {
+    this.exportPrivateSubnet(stackName + 'CardAuthPrivateSubnet1');
 
-    const securityGroupOutput = new cdk.CfnOutput(this, 'SecurityGroupId', {
-      exportName: 'SecurityGroupId',
+    const securityGroupOutput = new cdk.CfnOutput(this, stackName + 'SecurityGroupId', {
+      exportName: stackName + 'SecurityGroupId',
       value: this.securityGroup.securityGroupId
     });
 
-    new cdk.CfnOutput(this, 'CardAuthQueueARN', {
-      exportName: 'CardAuthQueueARN',
+    new cdk.CfnOutput(this, stackName + 'CardAuthQueueARN', {
+      exportName: stackName + 'CardAuthQueueARN',
       value: this.sqs.queueArn
     });
+
+    new cdk.CfnOutput(this, stackName + 'SQS', {
+      exportName: stackName + 'SQS',
+      value: this.sqs.queueArn
+    })
 
   }
 
@@ -127,15 +132,32 @@ export class SolutionStack extends cdk.Stack {
 
 constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+    var stackName = 'Unknown';
+    if (props && props.stackName) {
+      stackName = props.stackName;
+    }
+    console.log ("Stack name: ", stackName);
+
     this.createVpc();
-    this.topic = this.createSns('Message');
     const dlq = this.createDLQ();
     this.createDLQAlarm(dlq);
     const alarmTopic = this.createSns('AlarmTopic');
     this.createEmailSubscription(alarmTopic);
     this.createSqs(dlq);
-    this.subscribeSqsToSns(dlq);
-    this.createElastiCache();
-    this.defineOutput();
+
+    if (stackName == 'Primary') {
+      this.topic = this.createSns('Message');
+      this.subscribeSqsToSns(this.sqs, dlq);
+      const secondaryQueue = Sqs.Queue.fromQueueArn(this, 'SecondaryQueue', 
+        'arn:aws:sqs:us-east-2:464940127111:Secondary-SameRegionQueue5EA47706-mquosVuUKVMt');
+        this.subscribeSqsToSns(secondaryQueue, dlq);
+
+    } else {
+      console.log ("Skipping SNS creation");
+    }
+
+    this.createElastiCache(stackName);
+    this.defineOutput(stackName);
   }
 }

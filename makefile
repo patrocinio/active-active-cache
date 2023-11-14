@@ -16,8 +16,13 @@ cacher_build:
 cacher_delete:
 	cd cacher; sam delete --no-prompts
 
-cacher_deploy: cacher_build find_redis_url
-	cd cacher; sam deploy --parameter-overrides RedisURL=$(REDIS_ADDRESS)
+cacher_deploy: cacher_deploy_east cacher_deploy_west
+
+cacher_deploy_east: set_region_us_east_2 cacher_build find_redis_url
+	cd cacher; sam deploy --parameter-overrides RedisURL=$(REDIS_ADDRESS) Prefix=Secondary --region us-east-2
+
+cacher_deploy_west: set_region_us_west_2 cacher_build find_redis_url
+	cd cacher; sam deploy --parameter-overrides RedisURL=$(REDIS_ADDRESS) --region us-west-2
 
 cacher_save:
 	curl https://ibtred047k.execute-api.us-west-2.amazonaws.com/Prod/save
@@ -76,11 +81,20 @@ send_auth:
 auth_load_test:
 	ab -n 1000 https://bjksnyer27.execute-api.us-west-2.amazonaws.com/Prod/send 
 
-set_region:
+set_region_us_east_2:
+	aws configure set default.region us-east-2
+	
+set_region_us_west_2:
 	aws configure set default.region us-west-2
 	
 solution_deploy: bootstrap synth
-	cd solution; cdk deploy --require-approval never
+	cd solution; cdk deploy --require-approval never --all
+
+solution_deploy_primary: bootstrap synth
+	cd solution; cdk deploy --require-approval never PrimarySolutionStack
+
+solution_deploy_secondary: bootstrap synth
+	cd solution; cdk deploy --require-approval never SecondarySolutionStack
 
 synth:
 	cd solution; cdk synth
