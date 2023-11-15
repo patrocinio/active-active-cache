@@ -24,8 +24,13 @@ cacher_deploy_primary: set_region_us_west_2 cacher_build find_redis_url
 cacher_deploy_secondary: set_region_us_east_2 cacher_build find_redis_url
 	cd cacher; sam deploy --parameter-overrides RedisURL=$(REDIS_ADDRESS) --region us-east-2
 
-cacher_save:
-	curl https://ibtred047k.execute-api.us-west-2.amazonaws.com/Prod/save
+GET_CACHER_ID=$(shell aws apigateway get-rest-apis --output json | jq '.items[] | select (.name == "cacher").id')
+SET_CACHER_ID = $(eval CACHER_ID=$(GET_CACHER_ID))
+
+cacher_save: get_region
+	$(SET_CACHER_ID)
+	echo Cacher ID: $(CACHER_ID)
+	curl https://$(CACHER_ID).execute-api.$(REGION).amazonaws.com/Prod/save
 
 delete:
 	aws cloudformation delete-stack --stack-name SolutionStack
@@ -50,6 +55,13 @@ find_redis_url:
 	  --show-cache-node-info --output json > /tmp/x
 	  $(SET_REDIS_ADDRESS)
 	  echo Redis: $(REDIS_ADDRESS)
+
+GET_REGION=$(shell aws configure list | grep region | awk '{print $$2}')
+SET_REGION=$(eval REGION=$(GET_REGION))
+
+get_region:
+	$(SET_REGION)
+	echo Region: $(REGION)
 
 init:
 	cd solution; cdk init app --language=typescript
