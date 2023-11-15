@@ -56,6 +56,13 @@ find_redis_url:
 	  $(SET_REDIS_ADDRESS)
 	  echo Redis: $(REDIS_ADDRESS)
 
+GET_AUTH_ID=$(shell aws apigateway get-rest-apis --output json | jq '.items[] | select (.name == "auth-loader").id')
+SET_AUTH_URL = $(eval AUTH_URL=https://$(GET_AUTH_ID).execute-api.$(REGION).amazonaws.com/Prod/send)
+
+get_auth_url: get_region
+	$(SET_AUTH_URL)
+	echo Auth ID: $(AUTH_URL)
+
 GET_REGION=$(shell aws configure list | grep region | awk '{print $$2}')
 SET_REGION=$(eval REGION=$(GET_REGION))
 
@@ -87,11 +94,11 @@ query_deploy: query_build find_redis_url
 run_query: set_region_us_west_2 find_query_url
 	curl $(QUERY_URL)
 
-send_auth:
-	curl https://fs4mfkm0pa.execute-api.us-west-2.amazonaws.com/Prod/send
+send_auth: get_auth_url
+	curl $(AUTH_URL)
 
 auth_load_test:
-	ab -n 1000 https://fs4mfkm0pa.execute-api.us-west-2.amazonaws.com/Prod/send 
+	ab -n 1000 $(AUTH_URL)
 
 set_region_us_east_2:
 	aws configure set default.region us-east-2
