@@ -42,20 +42,18 @@ destroy: cacher_delete query_delete loader_delete
 	cd solution; cdk destroy --require-approval never
 
 
-GET_QUERY_URL = $(shell jq .Stacks[0].Outputs[0].OutputValue /tmp/x)
+GET_QUERY_URL = $(shell aws cloudformation describe-stacks --stack-name ecquery --output json | jq .Stacks[0].Outputs[0].OutputValue)
 SET_QUERY_URL = $(eval QUERY_URL=$(GET_QUERY_URL))
 
-find_query_url:
-	aws cloudformation describe-stacks --stack-name ecquery --output json > /tmp/x
+find_query_url: set_region_us_west_2
 	$(SET_QUERY_URL)
 	@echo Query URL: $(QUERY_URL)
 
-GET_REDIS_ADDRESS = $(shell jq .CacheClusters[0].CacheNodes[0].Endpoint.Address /tmp/x)
+GET_REDIS_ADDRESS = $(shell aws elasticache describe-cache-clusters \
+	  --show-cache-node-info --output json | jq .CacheClusters[0].CacheNodes[0].Endpoint.Address)
 SET_REDIS_ADDRESS = $(eval REDIS_ADDRESS=redis://$(GET_REDIS_ADDRESS):6379)
 
 find_redis_url:
-	aws elasticache describe-cache-clusters \
-	  --show-cache-node-info --output json > /tmp/x
 	  $(SET_REDIS_ADDRESS)
 	  echo Redis: $(REDIS_ADDRESS)
 
