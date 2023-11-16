@@ -51,7 +51,6 @@ async function publishMessage(account: string, data: number) {
     .connect();
 
     await client.set(account, data);
-    const value = await client.get('key');
     await client.disconnect();
 
     const now = Date.now();
@@ -60,7 +59,7 @@ async function publishMessage(account: string, data: number) {
 
     await publishMetric(delta);
 
-    return value;
+    return "account " + account + " set with value " + data;
 }
 
 export const apiHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -91,10 +90,10 @@ export const queueHandler = async (event: SQSEvent): Promise<void> => {
 
             const attributes = body.MessageAttributes;
 
-            console.log ("queueHandler attributes: ", attributes)
-            console.log ("queueHandler attributes type: ", typeof attributes)
+            console.log ("queueHandler attributes: ", attributes);
+            console.log ("queueHandler attributes type: ", typeof attributes);
 
-            await publishMessage(attributes.Account.Value, attributes.Data.Value)
+            await publishMessage(attributes.Account.Value, attributes.Data.Value);
         }
     } catch (err) {
         console.log(err);

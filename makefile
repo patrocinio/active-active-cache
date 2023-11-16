@@ -4,6 +4,9 @@ all:
 arch:
 	cd architecture; java -jar plantuml-1.2023.11.jar Architecture.puml
 
+auth_load_test:
+	ab -n 1000 $(AUTH_URL)
+
 bootstrap:
 	cd solution; cdk bootstrap
 
@@ -18,10 +21,10 @@ cacher_delete:
 
 cacher_deploy: cacher_deploy_primary cacher_deploy_secondary
 
-cacher_deploy_primary: set_region_us_west_2 cacher_build find_redis_url
+cacher_deploy_primary: set_region_us_west_2 find_redis_url cacher_build
 	cd cacher; sam deploy --parameter-overrides RedisURL=$(REDIS_ADDRESS) --region us-west-2
 
-cacher_deploy_secondary: set_region_us_east_2 cacher_build find_redis_url
+cacher_deploy_secondary: set_region_us_east_2 find_redis_url cacher_build
 	cd cacher; sam deploy --parameter-overrides RedisURL=$(REDIS_ADDRESS) --region us-east-2
 
 GET_CACHER_ID=$(shell aws apigateway get-rest-apis --output json | jq '.items[] | select (.name == "cacher").id')
@@ -96,9 +99,6 @@ run_query: set_region_us_west_2 find_query_url
 
 send_auth: get_auth_url
 	curl $(AUTH_URL)
-
-auth_load_test:
-	ab -n 1000 $(AUTH_URL)
 
 set_region_us_east_2:
 	aws configure set default.region us-east-2
