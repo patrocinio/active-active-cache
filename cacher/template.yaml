@@ -38,7 +38,8 @@ Resources:
         Variables:
           REDIS_URL: !Ref RedisURL
       Policies:
-      - AdministratorAccess
+       - CloudWatchPutMetricPolicy: {}
+#      - AdministratorAccess
 
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
