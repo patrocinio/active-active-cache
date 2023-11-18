@@ -16,8 +16,11 @@ build:
 cacher_build: 
 	cd cacher; sam build
 
-cacher_delete:
+cacher_delete: 
 	cd cacher; sam delete --no-prompts
+
+cacher_delete_secondary:
+	cd cacher; sam delete --no-prompts --region us-east-2
 
 cacher_deploy: cacher_deploy_primary cacher_deploy_secondary
 

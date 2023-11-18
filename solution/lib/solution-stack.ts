@@ -28,7 +28,7 @@ export class SolutionStack extends cdk.Stack {
   }
 
   private createSqs(dlq: Sqs.Queue) {
-    this.sqs = new Sqs.Queue (this, 'Same Region Queue', {
+    this.sqs = new Sqs.Queue (this, 'Queue', {
       deadLetterQueue: {
         queue: dlq,
         maxReceiveCount: 1
