@@ -11,9 +11,7 @@ export class SolutionStack extends cdk.Stack {
   private vpc: EC2.Vpc;
   private topic: Sns.Topic;
   private sqs: Sqs.Queue;
-  private cache: ElastiCache.CfnReplicationGroup;
   private securityGroup: EC2.SecurityGroup;
-//  private cache: ElastiCache.CfnCacheCluster;
 
   private createVpc() {
     this.vpc = new EC2.Vpc (this, 'cache');
@@ -79,7 +77,7 @@ export class SolutionStack extends cdk.Stack {
     });
     */
 
-    this.cache = new ElastiCache.CfnReplicationGroup(this, "ReplicationGroup", {
+    new ElastiCache.CfnReplicationGroup(this, "ReplicationGroup", {
       replicationGroupDescription: "Elastic Cache Replication Group",
       numCacheClusters: 1,
       automaticFailoverEnabled: false,
@@ -146,6 +144,7 @@ constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     this.createEmailSubscription(alarmTopic);
     this.createSqs(dlq);
 
+    console.log ("createVpc stackName: ", stackName);
     if (stackName == 'Primary') {
       this.topic = this.createSns('Message');
       this.subscribeSqsToSns(this.sqs, dlq);

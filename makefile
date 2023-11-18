@@ -61,7 +61,7 @@ find_redis_url:
 	  echo Redis: $(REDIS_ADDRESS)
 
 GET_AUTH_ID=$(shell aws apigateway get-rest-apis --output json | jq '.items[] | select (.name == "auth-loader").id')
-SET_AUTH_URL = $(eval AUTH_URL=https://$(GET_AUTH_ID).execute-api.$(REGION).amazonaws.com/Prod/send)
+SET_AUTH_URL = $(eval AUTH_URL=https://$(GET_AUTH_ID).execute-api.$(REGION).amazonaws.com/Prod/)
 
 get_auth_url: get_region
 	$(SET_AUTH_URL)
@@ -83,7 +83,7 @@ loader_build:
 loader_delete:
 	cd auth_loader; sam delete --no-prompts
 
-loader_deploy: loader_build
+loader_deploy: set_region_us_west_2 loader_build 
 	cd auth_loader; sam deploy
 
 query_build:
@@ -95,11 +95,14 @@ query_delete:
 query_deploy: query_build find_redis_url
 	cd elasticache_query; sam deploy --parameter-overrides RedisURL=$(REDIS_ADDRESS)
 
+repeat_auth: get_auth_url
+	curl $(AUTH_URL)/repeat
+
 run_query: set_region_us_west_2 find_query_url
 	curl $(QUERY_URL)
 
 send_auth: get_auth_url
-	curl $(AUTH_URL)
+	curl $(AUTH_URL)/send
 
 set_region_us_east_2:
 	aws configure set default.region us-east-2

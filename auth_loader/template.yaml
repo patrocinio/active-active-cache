@@ -12,10 +12,10 @@ Globals:
 
 Resources:
   LoaderFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function 
     Properties:
       CodeUri: loader/
-      Handler: app.lambdaHandler
+      Handler: app.send
       Runtime: nodejs18.x
       Timeout: 300
       AutoPublishAlias: live
@@ -23,9 +23,45 @@ Resources:
         - x86_64
       Events:
         HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api 
           Properties:
             Path: /send
+            Method: get
+      Policies:
+      - AmazonSNSFullAccess
+      VpcConfig:
+        SecurityGroupIds:
+        - !ImportValue 'SecurityGroupId'
+        SubnetIds:
+        - !ImportValue 'CardAuthPrivateSubnet1'
+      Environment:
+        Variables:
+          TOPIC_ARN: "arn:aws:sns:us-west-2:464940127111:Primary-Message251322C6-WSvpVni84A4S"
+
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints: 
+        - app.ts
+
+  RepeaterFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: loader/
+      Handler: app.repeat
+      Runtime: nodejs18.x
+      Timeout: 300
+      AutoPublishAlias: live
+      Architectures:
+        - x86_64
+      Events:
+        HelloWorld:
+          Type: Api 
+          Properties:
+            Path: /repeat
             Method: get
       Policies:
       - AmazonSNSFullAccess

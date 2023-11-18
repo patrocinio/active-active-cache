@@ -40,9 +40,30 @@ async function publishMessage() {
     return response;
 }
 
-export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const send = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     try {
         const response = await publishMessage();
+
+        return {
+            statusCode: 200,
+            body: JSON.stringify({
+                message: response,
+            }),
+        };
+    } catch (err) {
+        console.log(err);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({
+                message: 'some error happened',
+            }),
+        };
+    }
+};
+
+export const repeat = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+    try {
+        const response = await setInterval (publishMessage, 60 * 1000);
 
         return {
             statusCode: 200,
