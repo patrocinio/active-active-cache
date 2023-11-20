@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 
 import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
 
@@ -61,23 +61,3 @@ export const send = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxy
     }
 };
 
-export const repeat = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    try {
-        const response = await setInterval (publishMessage, 60 * 1000);
-
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                message: response,
-            }),
-        };
-    } catch (err) {
-        console.log(err);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({
-                message: 'some error happened',
-            }),
-        };
-    }
-};

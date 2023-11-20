@@ -47,42 +47,6 @@ Resources:
         EntryPoints: 
         - app.ts
 
-  RepeaterFunction:
-    Type: AWS::Serverless::Function 
-    Properties:
-      CodeUri: loader/
-      Handler: app.repeat
-      Runtime: nodejs18.x
-      Timeout: 300
-      AutoPublishAlias: live
-      Architectures:
-        - x86_64
-      Events:
-        HelloWorld:
-          Type: Api 
-          Properties:
-            Path: /repeat
-            Method: get
-      Policies:
-      - AmazonSNSFullAccess
-      VpcConfig:
-        SecurityGroupIds:
-        - !ImportValue 'SecurityGroupId'
-        SubnetIds:
-        - !ImportValue 'CardAuthPrivateSubnet1'
-      Environment:
-        Variables:
-          TOPIC_ARN: "arn:aws:sns:us-west-2:464940127111:Primary-Message251322C6-WSvpVni84A4S"
-
-    Metadata: # Manage esbuild properties
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: "es2020"
-        Sourcemap: true
-        EntryPoints: 
-        - app.ts
-
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM

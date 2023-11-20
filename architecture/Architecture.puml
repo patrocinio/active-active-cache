@@ -18,6 +18,7 @@
 left to right direction
 
 LambdaLambdaFunction(auth_loader, "Authorization Loader", "Lambda")
+LambdaLambdaFunction(auth_repeater, "Authorization Repeater", "Lambda")
 
 RegionGroup(us-east-1, "us-east-1") {
     SimpleNotificationServiceTopic(sns, "SNS", "SNS")
@@ -35,6 +36,7 @@ RegionGroup(us-west-2, "us-west-2") {
 }
 
 auth_loader --> sns
+auth_repeater --> sns
 sns --> eastQueue
 sns --> westQueue
 
