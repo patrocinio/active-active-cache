@@ -6,6 +6,8 @@ import * as Sqs from 'aws-cdk-lib/aws-sqs';
 import { aws_elasticache as ElastiCache } from 'aws-cdk-lib';
 import * as SnsSubscription from 'aws-cdk-lib/aws-sns-subscriptions';
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
+import { SSMParameterReader } from './ssm-parameter-reader';
 
 export class SolutionStack extends cdk.Stack {
   private vpc: EC2.Vpc;
@@ -128,6 +130,24 @@ export class SolutionStack extends cdk.Stack {
     topic.addSubscription(new SnsSubscription.EmailSubscription('epatro+cache@gmail.com'));
   }
 
+  private defineParameters(stackName: String) {
+    new StringParameter(this, 'SQSParameter', {
+      parameterName: stackName + 'SQS',
+      description: 'The SQS ARN',
+      stringValue: this.sqs.queueArn
+    });
+  }
+
+  private retrieveSecondarySqsArn() {
+    const reader = new SSMParameterReader(this, 'SecondarySQS', {
+      parameterName: 'SecondarySQS',
+      region: 'us-east-2'
+    })
+    const arn = reader.getParameterValue();
+    console.log ("retrieveSecondarySqsArn arn: ", arn);
+    return arn;
+  }
+
 constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -148,9 +168,10 @@ constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     if (stackName == 'Primary') {
       this.topic = this.createSns('Message');
       this.subscribeSqsToSns(this.sqs, dlq);
-      const secondaryQueue = Sqs.Queue.fromQueueArn(this, 'SecondaryQueue', 
-        'arn:aws:sqs:us-east-2:464940127111:Secondary-SameRegionQueue5EA47706-mquosVuUKVMt');
-        this.subscribeSqsToSns(secondaryQueue, dlq);
+      const secondarySqsArn = this.retrieveSecondarySqsArn();
+
+      const secondaryQueue = Sqs.Queue.fromQueueArn(this, 'SecondaryQueue', secondarySqsArn);
+      this.subscribeSqsToSns(secondaryQueue, dlq);
 
     } else {
       console.log ("Skipping SNS creation");
@@ -158,5 +179,6 @@ constructor(scope: Construct, id: string, props?: cdk.StackProps) {
 
     this.createElastiCache(stackName);
     this.defineOutput();
+    this.defineParameters(stackName);
   }
 }

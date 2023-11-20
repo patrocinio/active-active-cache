@@ -107,8 +107,6 @@ repeater_delete:
 repeater_deploy: set_region_us_west_2 repeater_build 
 	cd repeater; sam deploy
 
-
-
 run_query: set_region_us_west_2 find_query_url
 	curl $(QUERY_URL)
 
