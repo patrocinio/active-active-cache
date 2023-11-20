@@ -98,6 +98,17 @@ query_deploy: query_build find_redis_url
 repeat_auth: get_auth_url
 	curl $(AUTH_URL)/repeat
 
+repeater_build: 
+	cd repeater; sam build
+
+repeater_delete:
+	cd repeater; sam delete --no-prompts
+
+repeater_deploy: set_region_us_west_2 repeater_build 
+	cd repeater; sam deploy
+
+
+
 run_query: set_region_us_west_2 find_query_url
 	curl $(QUERY_URL)
 

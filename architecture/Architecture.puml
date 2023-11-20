@@ -36,7 +36,7 @@ RegionGroup(us-west-2, "us-west-2") {
 }
 
 auth_loader --> sns
-auth_repeater --> sns
+auth_repeater --> auth_loader
 sns --> eastQueue
 sns --> westQueue
 
