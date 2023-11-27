@@ -6,8 +6,6 @@ import { CloudWatchClient, PutMetricDataCommand } from '@aws-sdk/client-cloudwat
 
 const redisURL = process.env.REDIS_URL;
 
-console.log ("Redis URL: ", redisURL);
-
 /**
  *
  * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
@@ -84,6 +82,9 @@ export const apiHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewa
 };
 
 export const queueHandler = async (event: SQSEvent): Promise<void> => {
+    console.log ("queueHandler Redis URL: ", redisURL);
+
+
     try {
         for (const message of event.Records) {
             const body = JSON.parse(message.body);

@@ -63,9 +63,16 @@ find_redis_url:
 GET_AUTH_ID=$(shell aws apigateway get-rest-apis --output json | jq '.items[] | select (.name == "auth-loader").id')
 SET_AUTH_URL = $(eval AUTH_URL=https://$(GET_AUTH_ID).execute-api.$(REGION).amazonaws.com/Prod/)
 
-get_auth_url: get_region
+get_auth_url: set_region_us_west_2 get_region
 	$(SET_AUTH_URL)
 	echo Auth ID: $(AUTH_URL)
+
+GET_REPEATER_ID=$(shell aws apigateway get-rest-apis --output json | jq '.items[] | select (.name == "repeater").id')
+SET_REPEATER_URL = $(eval REPEATER_URL=https://$(GET_REPEATER_ID).execute-api.$(REGION).amazonaws.com/Prod/)
+
+get_repeater_url: set_region_us_west_2 get_region
+	$(SET_REPEATER_URL)
+	echo Auth ID: $(REPEATER_URL)
 
 GET_REGION=$(shell aws configure list | grep region | awk '{print $$2}')
 SET_REGION=$(eval REGION=$(GET_REGION))
@@ -95,8 +102,8 @@ query_delete:
 query_deploy: query_build find_redis_url
 	cd elasticache_query; sam deploy --parameter-overrides RedisURL=$(REDIS_ADDRESS)
 
-repeat_auth: get_auth_url
-	curl $(AUTH_URL)/repeat
+repeat_auth: get_repeater_url
+	curl $(REPEATER_URL)/repeat
 
 repeater_build: 
 	cd repeater; sam build
