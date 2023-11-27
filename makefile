@@ -22,13 +22,13 @@ cacher_delete:
 cacher_delete_secondary:
 	cd cacher; sam delete --no-prompts --region us-east-2
 
-cacher_deploy: cacher_deploy_primary cacher_deploy_secondary
+cacher_deploy: cacher_deploy_secondary cacher_deploy_primary 
 
-cacher_deploy_primary: set_region_us_west_2 find_redis_url cacher_build
-	cd cacher; sam deploy --parameter-overrides RedisURL=$(REDIS_ADDRESS) --region us-west-2
+cacher_deploy_primary: set_region_us_west_2 find_primary_redis_url cacher_build
+	cd cacher; sam deploy --parameter-overrides RedisURL=$(PRIMARY_REDIS_ADDRESS) --region us-west-2
 
-cacher_deploy_secondary: set_region_us_east_2 find_redis_url cacher_build
-	cd cacher; sam deploy --parameter-overrides RedisURL=$(REDIS_ADDRESS) --region us-east-2
+cacher_deploy_secondary: set_region_us_east_2 find_secondary_redis_url cacher_build
+	cd cacher; sam deploy --parameter-overrides RedisURL=$(SECONDARY_REDIS_ADDRESS) --region us-east-2
 
 GET_CACHER_ID=$(shell aws apigateway get-rest-apis --output json | jq '.items[] | select (.name == "cacher").id')
 SET_CACHER_ID = $(eval CACHER_ID=$(GET_CACHER_ID))
@@ -54,11 +54,17 @@ find_query_url: set_region_us_west_2
 
 GET_REDIS_ADDRESS = $(shell aws elasticache describe-cache-clusters \
 	  --show-cache-node-info --output json | jq .CacheClusters[0].CacheNodes[0].Endpoint.Address)
-SET_REDIS_ADDRESS = $(eval REDIS_ADDRESS=redis://$(GET_REDIS_ADDRESS):6379)
+SET_PRIMARY_REDIS_ADDRESS = $(eval PRIMARY_REDIS_ADDRESS=redis://$(GET_REDIS_ADDRESS):6379)
+SET_SECONDARY_REDIS_ADDRESS = $(eval SECONDARY_REDIS_ADDRESS=redis://$(GET_REDIS_ADDRESS):6379)
 
-find_redis_url:
-	  $(SET_REDIS_ADDRESS)
-	  echo Redis: $(REDIS_ADDRESS)
+find_primary_redis_url: set_region_us_west_2
+	  $(SET_PRIMARY_REDIS_ADDRESS)
+	  echo Redis: $(PRIMARY_REDIS_ADDRESS)
+
+find_secondary_redis_url: set_region_us_east_2
+	  $(SET_SECONDARY_REDIS_ADDRESS)
+	  echo Redis: $(SECONDARY_REDIS_ADDRESS)
+
 
 GET_AUTH_ID=$(shell aws apigateway get-rest-apis --output json | jq '.items[] | select (.name == "auth-loader").id')
 SET_AUTH_URL = $(eval AUTH_URL=https://$(GET_AUTH_ID).execute-api.$(REGION).amazonaws.com/Prod/)
@@ -99,7 +105,7 @@ query_build:
 query_delete:
 	cd elasticache_query; sam delete --no-prompts
 
-query_deploy: query_build find_redis_url
+query_deploy: query_build find_primary_redis_url
 	cd elasticache_query; sam deploy --parameter-overrides RedisURL=$(REDIS_ADDRESS)
 
 repeat_auth: get_repeater_url
