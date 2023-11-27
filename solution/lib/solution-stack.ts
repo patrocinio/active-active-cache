@@ -139,7 +139,7 @@ export class SolutionStack extends Stack {
     return arn;
   }
 
-  private addSqsResourcePolicy() {
+  private addSqsResourcePolicy(snsArn: String) {
     const policy = new PolicyStatement(
       {
         effect: Effect.ALLOW,
@@ -148,14 +148,33 @@ export class SolutionStack extends Stack {
         resources: [this.sqs.queueArn],
         conditions: {
           "ArnEquals": {
-            "aws:SourceArn": "arn:aws:sns:us-west-2:464940127111:Primary-Message251322C6-WSvpVni84A4S"
+            "aws:SourceArn": snsArn
           }
         }
       }
     )
     this.sqs.addToResourcePolicy(policy);
-
   }
+
+  private defineSNSParameter() {
+    new StringParameter(this, 'SNSParameter', {
+      parameterName: 'SNS',
+      description: 'The SNS ARN',
+      stringValue: this.topic.topicArn
+    });
+  }
+
+  private retrieveSNSArn() {
+    const reader = new SSMParameterReader(this, 'SNS', {
+      parameterName: 'SNS',
+      region: 'us-west-2'
+    })
+    const arn = reader.getParameterValue();
+    console.log ("retrieveSNSArn arn: ", arn);
+    return arn;
+  }
+
+
 
 constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
@@ -172,7 +191,8 @@ constructor(scope: Construct, id: string, props?: StackProps) {
     const alarmTopic = this.createSns('AlarmTopic');
     this.createEmailSubscription(alarmTopic);
     this.createSqs(dlq);
-    this.addSqsResourcePolicy();
+    const snsArn = this.retrieveSNSArn();
+    this.addSqsResourcePolicy(snsArn);
 
     console.log ("createVpc stackName: ", stackName);
     if (stackName == 'Primary') {
@@ -182,6 +202,7 @@ constructor(scope: Construct, id: string, props?: StackProps) {
 
       const secondaryQueue = Queue.fromQueueArn(this, 'SecondaryQueue', secondarySqsArn);
       this.subscribeSqsToSns(secondaryQueue, dlq);
+      this.defineSNSParameter();
 
     } else {
       console.log ("Skipping SNS creation");
