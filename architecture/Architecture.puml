@@ -7,6 +7,7 @@
 
 !include AWSPuml/ApplicationIntegration/SimpleNotificationServiceTopic.puml
 !include AWSPuml/ApplicationIntegration/SimpleQueueServiceQueue.puml
+!include AWSPuml/ApplicationIntegration/APIGateway.puml
 
 !include AWSPuml/Groups/Region.puml
 !include AWSPuml/Groups/AWSCloud.puml
@@ -17,8 +18,10 @@
 
 left to right direction
 
-LambdaLambdaFunction(auth_loader, "Authorization Loader", "Lambda")
-LambdaLambdaFunction(auth_repeater, "Authorization Repeater", "Lambda")
+APIGateway(auth_loader_api, "Authorization Loader", "API Gateway")
+LambdaLambdaFunction(auth_loader_lambda, "Authorization Loader", "Lambda")
+APIGateway(auth_repeater_api, "Authorization Repeater API", "API Gateway")
+LambdaLambdaFunction(auth_repeater_lambda, "Authorization Repeater", "Lambda")
 
 RegionGroup(us-east-1, "us-east-1") {
     SimpleNotificationServiceTopic(sns, "SNS", "SNS")
@@ -35,8 +38,10 @@ RegionGroup(us-west-2, "us-west-2") {
     ElastiCacheElastiCacheforRedis(westCache, "us-west-2 Cache", "Redis")
 }
 
-auth_loader --> sns
-auth_repeater --> auth_loader
+auth_loader_api --> auth_loader_lambda
+auth_loader_lambda --> sns
+auth_repeater_api --> auth_repeater_lambda
+auth_repeater_lambda --> auth_loader_api
 sns --> eastQueue
 sns --> westQueue
 
