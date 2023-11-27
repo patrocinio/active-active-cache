@@ -8,6 +8,7 @@ import * as SnsSubscription from 'aws-cdk-lib/aws-sns-subscriptions';
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { SSMParameterReader } from './ssm-parameter-reader';
+import { Effect, PolicyStatement, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 
 export class SolutionStack extends cdk.Stack {
   private vpc: EC2.Vpc;
@@ -68,16 +69,6 @@ export class SolutionStack extends cdk.Stack {
     this.securityGroup.addIngressRule(EC2.Peer.anyIpv4(), EC2.Port.tcp(6379), "Redis port");
 
     console.log ("createElasticCache securityGroup: ", this.securityGroup);
-
-    /*
-    this.cache = new ElastiCache.CfnCacheCluster(this, "CacheCluster", {
-      cacheNodeType: 'cache.m7g.large',
-      engine: 'redis',
-      numCacheNodes: 1,
-      cacheSubnetGroupName: subnetGroup.ref,
-      vpcSecurityGroupIds:[securityGroup.securityGroupId],
-    });
-    */
 
     new ElastiCache.CfnReplicationGroup(this, "ReplicationGroup", {
       replicationGroupDescription: "Elastic Cache Replication Group",
@@ -148,6 +139,24 @@ export class SolutionStack extends cdk.Stack {
     return arn;
   }
 
+  private addSqsResourcePolicy() {
+    const policy = new PolicyStatement(
+      {
+        effect: Effect.ALLOW,
+        actions: ["sqs:SendMessage"],
+        principals: [new ServicePrincipal('sns.amazonaws.com')],
+        resources: [this.sqs.queueArn],
+        conditions: {
+          "ArnEquals": {
+            "aws:SourceArn": "arn:aws:sns:us-west-2:464940127111:Primary-Message251322C6-WSvpVni84A4S"
+          }
+        }
+      }
+    )
+    this.sqs.addToResourcePolicy(policy);
+
+  }
+
 constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -163,6 +172,7 @@ constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     const alarmTopic = this.createSns('AlarmTopic');
     this.createEmailSubscription(alarmTopic);
     this.createSqs(dlq);
+    this.addSqsResourcePolicy();
 
     console.log ("createVpc stackName: ", stackName);
     if (stackName == 'Primary') {
