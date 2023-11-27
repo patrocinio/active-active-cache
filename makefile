@@ -24,10 +24,10 @@ cacher_delete_secondary:
 
 cacher_deploy: cacher_deploy_secondary cacher_deploy_primary 
 
-cacher_deploy_primary: set_region_us_west_2 find_primary_redis_url cacher_build
+cacher_deploy_primary: set_region_primary find_primary_redis_url cacher_build
 	cd cacher; sam deploy --parameter-overrides RedisURL=$(PRIMARY_REDIS_ADDRESS) --region us-west-2
 
-cacher_deploy_secondary: set_region_us_east_2 find_secondary_redis_url cacher_build
+cacher_deploy_secondary: set_region_secondary find_secondary_redis_url cacher_build
 	cd cacher; sam deploy --parameter-overrides RedisURL=$(SECONDARY_REDIS_ADDRESS) --region us-east-2
 
 GET_CACHER_ID=$(shell aws apigateway get-rest-apis --output json | jq '.items[] | select (.name == "cacher").id')
@@ -48,7 +48,7 @@ destroy: cacher_delete query_delete loader_delete
 GET_QUERY_URL = $(shell aws cloudformation describe-stacks --stack-name ecquery --output json | jq .Stacks[0].Outputs[0].OutputValue)
 SET_QUERY_URL = $(eval QUERY_URL=$(GET_QUERY_URL))
 
-find_query_url: set_region_us_west_2
+find_query_url: set_region_primary
 	$(SET_QUERY_URL)
 	@echo Query URL: $(QUERY_URL)
 
@@ -57,11 +57,11 @@ GET_REDIS_ADDRESS = $(shell aws elasticache describe-cache-clusters \
 SET_PRIMARY_REDIS_ADDRESS = $(eval PRIMARY_REDIS_ADDRESS=redis://$(GET_REDIS_ADDRESS):6379)
 SET_SECONDARY_REDIS_ADDRESS = $(eval SECONDARY_REDIS_ADDRESS=redis://$(GET_REDIS_ADDRESS):6379)
 
-find_primary_redis_url: set_region_us_west_2
+find_primary_redis_url: set_region_primary
 	  $(SET_PRIMARY_REDIS_ADDRESS)
 	  echo Redis: $(PRIMARY_REDIS_ADDRESS)
 
-find_secondary_redis_url: set_region_us_east_2
+find_secondary_redis_url: set_region_secondary
 	  $(SET_SECONDARY_REDIS_ADDRESS)
 	  echo Redis: $(SECONDARY_REDIS_ADDRESS)
 
@@ -69,14 +69,14 @@ find_secondary_redis_url: set_region_us_east_2
 GET_AUTH_ID=$(shell aws apigateway get-rest-apis --output json | jq '.items[] | select (.name == "auth-loader").id')
 SET_AUTH_URL = $(eval AUTH_URL=https://$(GET_AUTH_ID).execute-api.$(REGION).amazonaws.com/Prod/)
 
-get_auth_url: set_region_us_west_2 get_region
+get_auth_url: set_region_primary get_region
 	$(SET_AUTH_URL)
 	echo Auth ID: $(AUTH_URL)
 
 GET_REPEATER_ID=$(shell aws apigateway get-rest-apis --output json | jq '.items[] | select (.name == "repeater").id')
 SET_REPEATER_URL = $(eval REPEATER_URL=https://$(GET_REPEATER_ID).execute-api.$(REGION).amazonaws.com/Prod/)
 
-get_repeater_url: set_region_us_west_2 get_region
+get_repeater_url: set_region_primary get_region
 	$(SET_REPEATER_URL)
 	echo Auth ID: $(REPEATER_URL)
 
@@ -96,7 +96,7 @@ loader_build:
 loader_delete:
 	cd auth_loader; sam delete --no-prompts
 
-loader_deploy: set_region_us_west_2 loader_build 
+loader_deploy: set_region_primary loader_build 
 	cd auth_loader; sam deploy
 
 query_build:
@@ -117,20 +117,20 @@ repeater_build:
 repeater_delete:
 	cd repeater; sam delete --no-prompts
 
-repeater_deploy: set_region_us_west_2 repeater_build 
+repeater_deploy: set_region_primary repeater_build 
 	cd repeater; sam deploy
 
-run_query: set_region_us_west_2 find_query_url
+run_query: set_region_primary find_query_url
 	curl $(QUERY_URL)
 
 send_auth: get_auth_url
 	curl $(AUTH_URL)/send
 
-set_region_us_east_2:
-	aws configure set default.region us-east-2
-	
-set_region_us_west_2:
+set_region_primary:
 	aws configure set default.region us-west-2
+	
+set_region_secondary:
+	aws configure set default.region us-east-2
 	
 solution_deploy: bootstrap synth
 	cd solution; cdk deploy --require-approval never --all
