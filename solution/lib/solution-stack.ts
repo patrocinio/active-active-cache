@@ -1,35 +1,35 @@
-import * as cdk from 'aws-cdk-lib';
+import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import * as EC2 from 'aws-cdk-lib/aws-ec2';
-import * as Sns from 'aws-cdk-lib/aws-sns';
-import * as Sqs from 'aws-cdk-lib/aws-sqs';
+import { Port, Peer, SecurityGroup, Vpc } from 'aws-cdk-lib/aws-ec2';
+import { Topic } from 'aws-cdk-lib/aws-sns';
+import { Queue, IQueue } from 'aws-cdk-lib/aws-sqs';
 import { aws_elasticache as ElastiCache } from 'aws-cdk-lib';
-import * as SnsSubscription from 'aws-cdk-lib/aws-sns-subscriptions';
-import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import { SqsSubscription, EmailSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
+import { Alarm } from 'aws-cdk-lib/aws-cloudwatch';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { SSMParameterReader } from './ssm-parameter-reader';
 import { Effect, PolicyStatement, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 
-export class SolutionStack extends cdk.Stack {
-  private vpc: EC2.Vpc;
-  private topic: Sns.Topic;
-  private sqs: Sqs.Queue;
-  private securityGroup: EC2.SecurityGroup;
+export class SolutionStack extends Stack {
+  private vpc: Vpc;
+  private topic: Topic;
+  private sqs: Queue;
+  private securityGroup: SecurityGroup;
 
   private createVpc() {
-    this.vpc = new EC2.Vpc (this, 'cache');
+    this.vpc = new Vpc (this, 'cache');
   }
 
   private createSns(topicName: string) {
-    return new Sns.Topic(this, topicName)
+    return new Topic(this, topicName)
   }
 
   private createDLQ() {
-    return new Sqs.Queue (this, 'DLQ');
+    return new Queue (this, 'DLQ');
   }
 
-  private createSqs(dlq: Sqs.Queue) {
-    this.sqs = new Sqs.Queue (this, 'Queue', {
+  private createSqs(dlq: Queue) {
+    this.sqs = new Queue (this, 'Queue', {
       deadLetterQueue: {
         queue: dlq,
         maxReceiveCount: 1
@@ -37,8 +37,8 @@ export class SolutionStack extends cdk.Stack {
     });
   }
 
-  private subscribeSqsToSns(queue: Sqs.IQueue, dlq: Sqs.Queue) {
-    this.topic.addSubscription(new SnsSubscription.SqsSubscription(queue, {
+  private subscribeSqsToSns(queue: IQueue, dlq: Queue) {
+    this.topic.addSubscription(new SqsSubscription(queue, {
       deadLetterQueue: dlq
     }));
   }
@@ -59,14 +59,14 @@ export class SolutionStack extends cdk.Stack {
       description: "ElastiCache Subnet Group"
     })
 
-    this.securityGroup = new EC2.SecurityGroup(this, securityGroupName, {
+    this.securityGroup = new SecurityGroup(this, securityGroupName, {
       vpc: this.vpc,
       allowAllOutbound: true,
       description: "ElastiCache Security Group",
       securityGroupName: securityGroupName
     });
 
-    this.securityGroup.addIngressRule(EC2.Peer.anyIpv4(), EC2.Port.tcp(6379), "Redis port");
+    this.securityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(6379), "Redis port");
 
     console.log ("createElasticCache securityGroup: ", this.securityGroup);
 
@@ -83,7 +83,7 @@ export class SolutionStack extends cdk.Stack {
   }
 
   private exportPrivateSubnet(name: string) {
-    const subnetOutput = new cdk.CfnOutput(this, name, {
+    const subnetOutput = new CfnOutput(this, name, {
       value: this.vpc.privateSubnets[0].subnetId,
       exportName: name
     });
@@ -92,33 +92,33 @@ export class SolutionStack extends cdk.Stack {
   private defineOutput() {
     this.exportPrivateSubnet('CardAuthPrivateSubnet1');
 
-    const securityGroupOutput = new cdk.CfnOutput(this, 'SecurityGroupId', {
+    const securityGroupOutput = new CfnOutput(this, 'SecurityGroupId', {
       exportName: 'SecurityGroupId',
       value: this.securityGroup.securityGroupId
     });
 
-    new cdk.CfnOutput(this, 'CardAuthQueueARN', {
+    new CfnOutput(this, 'CardAuthQueueARN', {
       exportName: 'CardAuthQueueARN',
       value: this.sqs.queueArn
     });
 
-    new cdk.CfnOutput(this, 'SQS', {
+    new CfnOutput(this, 'SQS', {
       exportName: 'SQS',
       value: this.sqs.queueArn
     })
 
   }
 
-  private createDLQAlarm (dlq: Sqs.Queue) {
-      const alarm = new cloudwatch.Alarm(this, 'DLQAlarm', {
+  private createDLQAlarm (dlq: Queue) {
+      const alarm = new Alarm(this, 'DLQAlarm', {
         metric: dlq.metricApproximateNumberOfMessagesVisible(),
         threshold: 1,
         evaluationPeriods: 1,
       })
   }
 
-  private createEmailSubscription(topic: Sns.Topic) {
-    topic.addSubscription(new SnsSubscription.EmailSubscription('epatro+cache@gmail.com'));
+  private createEmailSubscription(topic: Topic) {
+    topic.addSubscription(new EmailSubscription('epatro+cache@gmail.com'));
   }
 
   private defineParameters(stackName: String) {
@@ -157,7 +157,7 @@ export class SolutionStack extends cdk.Stack {
 
   }
 
-constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     var stackName = 'Unknown';
@@ -180,7 +180,7 @@ constructor(scope: Construct, id: string, props?: cdk.StackProps) {
       this.subscribeSqsToSns(this.sqs, dlq);
       const secondarySqsArn = this.retrieveSecondarySqsArn();
 
-      const secondaryQueue = Sqs.Queue.fromQueueArn(this, 'SecondaryQueue', secondarySqsArn);
+      const secondaryQueue = Queue.fromQueueArn(this, 'SecondaryQueue', secondarySqsArn);
       this.subscribeSqsToSns(secondaryQueue, dlq);
 
     } else {
