@@ -10,6 +10,11 @@ Globals:
   Function:
     Timeout: 3
 
+Parameters:
+  TopicARN:
+    Type: String
+    Description: Topic ARN
+
 Resources:
   LoaderFunction:
     Type: AWS::Serverless::Function 
@@ -36,7 +41,7 @@ Resources:
         - !ImportValue 'CardAuthPrivateSubnet1'
       Environment:
         Variables:
-          TOPIC_ARN: "arn:aws:sns:us-west-2:464940127111:Primary-Message251322C6-WSvpVni84A4S"
+          TOPIC_ARN: !Ref TopicARN
 
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild

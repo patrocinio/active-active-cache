@@ -87,6 +87,13 @@ get_region:
 	$(SET_REGION)
 	echo Region: $(REGION)
 
+GET_TOPIC_ARN=$(shell aws sns list-topics | grep Message | awk '{print $$2}')
+SET_TOPIC_ARN=$(eval TOPIC_ARN=$(GET_TOPIC_ARN))
+
+get_topic_arn: set_region_primary
+	$(SET_TOPIC_ARN)
+	echo Topic ARN: $(TOPIC_ARN)
+
 init:
 	cd solution; cdk init app --language=typescript
 
@@ -96,8 +103,8 @@ loader_build:
 loader_delete:
 	cd auth_loader; sam delete --no-prompts
 
-loader_deploy: set_region_primary loader_build 
-	cd auth_loader; sam deploy
+loader_deploy: set_region_primary loader_build get_topic_arn
+	cd auth_loader; sam deploy --parameter-overrides TopicARN=$(TOPIC_ARN)
 
 query_build:
 	cd elasticache_query; sam build
