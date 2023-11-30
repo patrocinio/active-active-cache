@@ -41,6 +41,8 @@ cacher_save: get_region
 delete:
 	aws cloudformation delete-stack --stack-name SolutionStack
 
+deploy: solution_deploy loader_deploy cacher_deploy query_deploy repeater_deploy
+
 destroy: cacher_delete query_delete loader_delete
 	cd solution; cdk destroy --require-approval never
 
@@ -139,14 +141,16 @@ set_region_primary:
 set_region_secondary:
 	aws configure set default.region us-east-2
 	
-solution_deploy: bootstrap synth
-	cd solution; cdk deploy --require-approval never --all
+solution_deploy: solution_deploy_secondary solution_deploy_primary
 
 solution_deploy_primary: bootstrap synth
 	cd solution; cdk deploy --require-approval never PrimarySolutionStack
 
 solution_deploy_secondary: bootstrap synth
 	cd solution; cdk deploy --require-approval never SecondarySolutionStack
+
+solution_deploy_secondary_destroy:
+	cd solution; cdk destroy --require-approval never SecondarySolutionStack
 
 synth:
 	cd solution; cdk synth

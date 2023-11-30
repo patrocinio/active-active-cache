@@ -49,9 +49,9 @@ export class SolutionStack extends Stack {
 
     const subnetIds = [];
     for (const subnet of this.vpc.privateSubnets) {
-      subnetIds.push(subnet.subnetId)
+      console.log ("createElastiCache subnet ID: ", subnet.subnetId);
+      subnetIds.push(subnet.subnetId);
     }
-
 
     const subnetGroup = new ElastiCache.CfnSubnetGroup(this, "ElastiCacheSubnetGroup", {
       cacheSubnetGroupName: groupName,
@@ -189,10 +189,14 @@ constructor(scope: Construct, id: string, props?: StackProps) {
     const dlq = this.createDLQ();
     this.createDLQAlarm(dlq);
     const alarmTopic = this.createSns('AlarmTopic');
+
     this.createEmailSubscription(alarmTopic);
     this.createSqs(dlq);
+    
     const snsArn = this.retrieveSNSArn();
+    console.log ("snsArn: ", snsArn);
     this.addSqsResourcePolicy(snsArn);
+    
 
     console.log ("createVpc stackName: ", stackName);
     if (stackName == 'Primary') {
