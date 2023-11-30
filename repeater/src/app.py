@@ -10,10 +10,10 @@ def lambda_handler(event, context):
         headers={'Accept': 'application/json'},
         method='GET')
     
-    while True:
+# Run for 4 minutes
+    for iter in range(1, 5*60):
         res = urllib.request.urlopen(req, timeout=5)
-        print("Status: ", res.status)
-        print("Reason: ", res.reason)
+        print("#", iter, "Status: ", res.status)
         response = json.loads(res.read())
         print("Response: ", response)
         time.sleep(1)

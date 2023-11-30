@@ -8,8 +8,8 @@ Description: >
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 300
-    MemorySize: 128
+    Timeout: 600
+    MemorySize: 256
 
     Tracing: Active
   Api:
@@ -24,7 +24,11 @@ Resources:
       Architectures:
       - x86_64
       Events:
-        HelloWorld:
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: "rate(5 minutes)"
+        Repeat:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /repeat
