@@ -115,7 +115,7 @@ query_delete:
 	cd elasticache_query; sam delete --no-prompts
 
 query_deploy: query_build find_primary_redis_url
-	cd elasticache_query; sam deploy --parameter-overrides RedisURL=$(REDIS_ADDRESS)
+	cd elasticache_query; sam deploy --parameter-overrides RedisURL=$(PRIMARY_REDIS_ADDRESS)
 
 repeat_auth: get_repeater_url
 	curl $(REPEATER_URL)/repeat
