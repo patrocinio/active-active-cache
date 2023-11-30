@@ -24,6 +24,7 @@ Resources:
       Runtime: nodejs18.x
       Timeout: 300
       AutoPublishAlias: live
+      Tracing: Active
       Architectures:
         - x86_64
       Events:

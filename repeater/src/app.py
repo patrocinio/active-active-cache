@@ -6,7 +6,7 @@ import json
 def lambda_handler(event, context):
 
     req = urllib.request.Request(
-        url='https://fs4mfkm0pa.execute-api.us-west-2.amazonaws.com/Prod/send/',
+        url='https://tx8ff0lvf4.execute-api.us-west-2.amazonaws.com/Prod/send/',
         headers={'Accept': 'application/json'},
         method='GET')
     
