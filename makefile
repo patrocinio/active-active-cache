@@ -1,6 +1,13 @@
 all:
 	echo Specify which command
 
+add_to_resource_policy:
+	aws sqs set-queue-attributes \
+		--queue-url https://sqs.us-west-2.amazonaws.com/990386817329/Primary-Queue4A7E3555-dLu2sgI4sCGG \
+		--attributes file://set-queue-attributes.json
+#	aws sqs add-permission --queue-url https://sqs.us-west-2.amazonaws.com/990386817329/Primary-Queue4A7E3555-dLu2sgI4sCGG \
+#		--label AllowSNStoSendMessage --aws-account-ids 990386817329 --actions SendMessage
+
 arch:
 	cd architecture; java -jar plantuml-1.2023.11.jar Architecture.puml
 
@@ -41,7 +48,7 @@ cacher_save: get_region
 delete:
 	aws cloudformation delete-stack --stack-name SolutionStack
 
-deploy: solution_deploy loader_deploy cacher_deploy query_deploy repeater_deploy
+deploy: solution_deploy add_to_resource_policy loader_deploy cacher_deploy query_deploy repeater_deploy
 
 destroy: cacher_delete query_delete loader_delete
 	cd solution; cdk destroy --require-approval never

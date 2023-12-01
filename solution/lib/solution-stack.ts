@@ -139,6 +139,7 @@ export class SolutionStack extends Stack {
     return arn;
   }
 
+  /*
   private addSqsResourcePolicy(snsArn: String) {
     const policy = new PolicyStatement(
       {
@@ -155,6 +156,7 @@ export class SolutionStack extends Stack {
     )
     this.sqs.addToResourcePolicy(policy);
   }
+  */
 
   private defineSNSParameter() {
     new StringParameter(this, 'SNSParameter', {
@@ -195,7 +197,7 @@ constructor(scope: Construct, id: string, props?: StackProps) {
     
     const snsArn = this.retrieveSNSArn();
     console.log ("snsArn: ", snsArn);
-    this.addSqsResourcePolicy(snsArn);
+//    this.addSqsResourcePolicy(snsArn);
     
 
     console.log ("createVpc stackName: ", stackName);
