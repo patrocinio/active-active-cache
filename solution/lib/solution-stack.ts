@@ -9,7 +9,7 @@ import { Alarm } from 'aws-cdk-lib/aws-cloudwatch';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { SSMParameterReader } from './ssm-parameter-reader';
 //import { Effect, PolicyStatement, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
-import { Dashboard, GraphWidget, Metric } from 'aws-cdk-lib/aws-cloudwatch';
+import { Dashboard, GraphWidget, Metric, Dimension } from 'aws-cdk-lib/aws-cloudwatch';
 
 export class SolutionStack extends Stack {
   private vpc: Vpc;
@@ -178,10 +178,18 @@ export class SolutionStack extends Stack {
   }
 
   private addMetric(region: string) {
+    const dimension : Dimension = {
+      name: "Delay",
+      value: "Delay"
+    }
+
     return new Metric({
       region: region,
       namespace: "Cacher",
-      metricName: "Cacher/Delay"
+      metricName: "Cacher/Delay",
+      dimensionsMap: {
+        "Delay": "Delay"
+      }
     })
   }
 
@@ -191,7 +199,7 @@ export class SolutionStack extends Stack {
     });
 
     dashboard.addWidgets(new GraphWidget({
-      title: "Delay",
+      title: "Cache Delay 4",
       left: [
         this.addMetric("us-east-2"),
         this.addMetric("us-west-2")
