@@ -1,4 +1,4 @@
-import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
+import { Stack, StackProps, CfnOutput, Duration } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Port, Peer, SecurityGroup, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Topic } from 'aws-cdk-lib/aws-sns';
@@ -8,7 +8,8 @@ import { SqsSubscription, EmailSubscription } from 'aws-cdk-lib/aws-sns-subscrip
 import { Alarm } from 'aws-cdk-lib/aws-cloudwatch';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { SSMParameterReader } from './ssm-parameter-reader';
-import { Effect, PolicyStatement, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+//import { Effect, PolicyStatement, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { Dashboard, GraphWidget, Metric } from 'aws-cdk-lib/aws-cloudwatch';
 
 export class SolutionStack extends Stack {
   private vpc: Vpc;
@@ -176,6 +177,28 @@ export class SolutionStack extends Stack {
     return arn;
   }
 
+  private addMetric(region: string) {
+    return new Metric({
+      region: region,
+      namespace: "Cacher",
+      metricName: "Cacher/Delay"
+    })
+  }
+
+  private createDashboard() {
+    const dashboard = new Dashboard(this, 'Dash', {
+      defaultInterval: Duration.hours(1),
+    });
+
+    dashboard.addWidgets(new GraphWidget({
+      title: "Delay",
+      left: [
+        this.addMetric("us-east-2"),
+        this.addMetric("us-west-2")
+      ]
+  }));
+  };
+
 
 
 constructor(scope: Construct, id: string, props?: StackProps) {
@@ -209,6 +232,7 @@ constructor(scope: Construct, id: string, props?: StackProps) {
       const secondaryQueue = Queue.fromQueueArn(this, 'SecondaryQueue', secondarySqsArn);
       this.subscribeSqsToSns(secondaryQueue, dlq);
       this.defineSNSParameter();
+      this.createDashboard();
 
     } else {
       console.log ("Skipping SNS creation");
