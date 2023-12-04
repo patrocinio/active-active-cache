@@ -1,12 +1,17 @@
 all:
 	echo Specify which command
 
-add_to_resource_policy:
+add_to_resource_policy_primary: set_region_primary
 	aws sqs set-queue-attributes \
 		--queue-url https://sqs.us-west-2.amazonaws.com/990386817329/Primary-Queue4A7E3555-dLu2sgI4sCGG \
-		--attributes file://set-queue-attributes.json
-#	aws sqs add-permission --queue-url https://sqs.us-west-2.amazonaws.com/990386817329/Primary-Queue4A7E3555-dLu2sgI4sCGG \
-#		--label AllowSNStoSendMessage --aws-account-ids 990386817329 --actions SendMessage
+		--attributes file://set-queue-attributes-primary.json
+
+add_to_resource_policy_secondary: set_region_secondary
+	aws sqs set-queue-attributes \
+		--queue-url https://sqs.us-east-2.amazonaws.com/990386817329/Secondary-Queue4A7E3555-UzbhwnEwhXFv \
+		--attributes file://set-queue-attributes-secondary.json
+
+add_to_resource_policy: add_to_resource_policy_primary add_to_resource_policy_secondary
 
 arch:
 	cd architecture; java -jar plantuml-1.2023.11.jar Architecture.puml
