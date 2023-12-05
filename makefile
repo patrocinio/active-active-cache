@@ -138,8 +138,8 @@ repeater_build:
 repeater_delete:
 	cd repeater; sam delete --no-prompts
 
-repeater_deploy: set_region_primary repeater_build 
-	cd repeater; sam deploy
+repeater_deploy: set_region_primary repeater_build get_auth_url
+	cd repeater; sam deploy --parameter-overrides AuthURL=$(AUTH_URL)
 
 run_query: set_region_primary find_query_url
 	curl $(QUERY_URL)

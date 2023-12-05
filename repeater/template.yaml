@@ -10,10 +10,16 @@ Globals:
   Function:
     Timeout: 600
     MemorySize: 256
-
     Tracing: Active
   Api:
     TracingEnabled: true
+
+Parameters:
+  AuthURL:
+    Type: String
+    Description: Auth URL
+
+
 Resources:
   RepeaterFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -33,6 +39,10 @@ Resources:
           Properties:
             Path: /repeat
             Method: get
+      Environment:
+        Variables:
+          AUTH_URL: !Ref AuthURL
+
 
   ApplicationResourceGroup:
     Type: AWS::ResourceGroups::Group

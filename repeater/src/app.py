@@ -2,11 +2,14 @@ import json
 import time
 import urllib.request
 import json
+import os
 
 def lambda_handler(event, context):
 
+    path = os.environ['AUTH_URL']
+    print ("path: ", path)
     req = urllib.request.Request(
-        url='https://tx8ff0lvf4.execute-api.us-west-2.amazonaws.com/Prod/send/',
+        url=path + '/send/',
         headers={'Accept': 'application/json'},
         method='GET')
     
