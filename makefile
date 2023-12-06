@@ -1,17 +1,15 @@
 all:
 	echo Specify which command
 
-add_to_resource_policy_primary: set_region_primary find_queue_arn
-	echo Queue: $(QUEUE_ARN)
-	sed s/QUEUE_ARN/$(QUEUE_ARN)/g  < set-queue-attributes.template.json > set-queue-attributes-primary.json
-	aws sqs set-queue-attributes \
-		--queue-url https://sqs.us-west-2.amazonaws.com/990386817329/Primary-Queue4A7E3555-dLu2sgI4sCGG \
-		--attributes file://set-queue-attributes-primary.json
+add_to_resource_policy_primary: set_region_primary find_primary_queue_info
+	echo Queue: $(PRIMARY_QUEUE_ARN)
+	sed s/QUEUE_ARN/$(PRIMARY_QUEUE_ARN)/g  < set-queue-attributes.template.json > set-queue-attributes-primary.json
+	aws sqs set-queue-attributes --queue-url $(PRIMARY_QUEUE_URL) --attributes file://set-queue-attributes-primary.json
 
-add_to_resource_policy_secondary: set_region_secondary
-	aws sqs set-queue-attributes \
-		--queue-url https://sqs.us-east-2.amazonaws.com/990386817329/Secondary-Queue4A7E3555-UzbhwnEwhXFv \
-		--attributes file://set-queue-attributes-secondary.json
+add_to_resource_policy_secondary: set_region_secondary find_secondary_queue_info
+	echo Queue: $(SECONDARY_QUEUE_ARN)
+	sed s/QUEUE_ARN/$(SECONDARY_QUEUE_ARN)/g  < set-queue-attributes.template.json > set-queue-attributes-secondary.json
+	aws sqs set-queue-attributes --queue-url $(SECONDARY_QUEUE_URL) --attributes file://set-queue-attributes-secondary.json
 
 add_to_resource_policy: add_to_resource_policy_primary add_to_resource_policy_secondary
 
@@ -68,12 +66,27 @@ find_query_url: set_region_primary
 	$(SET_QUERY_URL)
 	@echo Query URL: $(QUERY_URL)
 
-GET_QUEUE_ARN = $(shell aws cloudformation describe-stacks --stack-name Primary --output json | jq '.Stacks[0].Outputs[] | select (.OutputKey == "CardAuthQueueARN").OutputValue')
-SET_QUEUE_ARN = $(eval QUEUE_ARN=$(GET_QUEUE_ARN))
+GET_PRIMARY_QUEUE_ARN = $(shell aws cloudformation describe-stacks --stack-name Primary --output json | jq '.Stacks[0].Outputs[] | select (.OutputKey == "CardAuthQueueARN").OutputValue')
+SET_PRIMARY_QUEUE_ARN = $(eval PRIMARY_QUEUE_ARN=$(GET_PRIMARY_QUEUE_ARN))
+GET_PRIMARY_QUEUE_URL = $(shell aws cloudformation describe-stacks --stack-name Primary --output json | jq '.Stacks[0].Outputs[] | select (.OutputKey == "CardAuthQueueURL").OutputValue')
+SET_PRIMARY_QUEUE_URL = $(eval PRIMARY_QUEUE_URL=$(GET_PRIMARY_QUEUE_URL))
 
-find_queue_arn: set_region_primary
-	$(SET_QUEUE_ARN)
-	@echo Queue ARN: $(QUEUE_ARN)
+find_primary_queue_info: set_region_primary
+	$(SET_PRIMARY_QUEUE_ARN)
+	@echo Queue ARN: $(PRIMARY_QUEUE_ARN)
+	$(SET_PRIMARY_QUEUE_URL)
+	@echo Queue URL: $(PRIMARY_QUEUE_URL)
+
+GET_SECONDARY_QUEUE_ARN = $(shell aws cloudformation describe-stacks --stack-name Secondary --output json | jq '.Stacks[0].Outputs[] | select (.OutputKey == "CardAuthQueueARN").OutputValue')
+SET_SECONDARY_QUEUE_ARN = $(eval SECONDARY_QUEUE_ARN=$(GET_SECONDARY_QUEUE_ARN))
+GET_SECONDARY_QUEUE_URL = $(shell aws cloudformation describe-stacks --stack-name Secondary --output json | jq '.Stacks[0].Outputs[] | select (.OutputKey == "CardAuthQueueURL").OutputValue')
+SET_SECONDARY_QUEUE_URL = $(eval SECONDARY_QUEUE_URL=$(GET_SECONDARY_QUEUE_URL))
+
+find_secondary_queue_info: set_region_secondary
+	$(SET_SECONDARY_QUEUE_ARN)
+	@echo Queue ARN: $(SECONDARY_QUEUE_ARN)
+	$(SET_SECONDARY_QUEUE_URL)
+	@echo Queue URL: $(SECONDARY_QUEUE_URL)
 
 GET_REDIS_ADDRESS = $(shell aws elasticache describe-cache-clusters \
 	  --show-cache-node-info --output json | jq .CacheClusters[0].CacheNodes[0].Endpoint.Address)

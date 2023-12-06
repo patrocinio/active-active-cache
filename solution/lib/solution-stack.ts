@@ -103,6 +103,11 @@ export class SolutionStack extends Stack {
       value: this.sqs.queueArn
     });
 
+    new CfnOutput(this, 'CardAuthQueueURL', {
+      exportName: 'CardAuthQueueURL',
+      value: this.sqs.queueUrl
+    });
+
     new CfnOutput(this, 'SQS', {
       exportName: 'SQS',
       value: this.sqs.queueArn
@@ -230,7 +235,6 @@ constructor(scope: Construct, id: string, props?: StackProps) {
     console.log ("snsArn: ", snsArn);
 //    this.addSqsResourcePolicy(snsArn);
     
-
     console.log ("createVpc stackName: ", stackName);
     if (stackName == 'Primary') {
       this.topic = this.createSns('Message');
