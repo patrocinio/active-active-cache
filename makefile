@@ -1,7 +1,9 @@
 all:
 	echo Specify which command
 
-add_to_resource_policy_primary: set_region_primary
+add_to_resource_policy_primary: set_region_primary find_queue_arn
+	echo Queue: $(QUEUE_ARN)
+	sed s/QUEUE_ARN/$(QUEUE_ARN)/g  < set-queue-attributes.template.json > set-queue-attributes-primary.json
 	aws sqs set-queue-attributes \
 		--queue-url https://sqs.us-west-2.amazonaws.com/990386817329/Primary-Queue4A7E3555-dLu2sgI4sCGG \
 		--attributes file://set-queue-attributes-primary.json
@@ -65,6 +67,13 @@ SET_QUERY_URL = $(eval QUERY_URL=$(GET_QUERY_URL))
 find_query_url: set_region_primary
 	$(SET_QUERY_URL)
 	@echo Query URL: $(QUERY_URL)
+
+GET_QUEUE_ARN = $(shell aws cloudformation describe-stacks --stack-name Primary --output json | jq '.Stacks[0].Outputs[] | select (.OutputKey == "CardAuthQueueARN").OutputValue')
+SET_QUEUE_ARN = $(eval QUEUE_ARN=$(GET_QUEUE_ARN))
+
+find_queue_arn: set_region_primary
+	$(SET_QUEUE_ARN)
+	@echo Queue ARN: $(QUEUE_ARN)
 
 GET_REDIS_ADDRESS = $(shell aws elasticache describe-cache-clusters \
 	  --show-cache-node-info --output json | jq .CacheClusters[0].CacheNodes[0].Endpoint.Address)

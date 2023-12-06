@@ -42,8 +42,11 @@ async function publishMessage() {
 
 export const send = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     try {
-        const response = await publishMessage();
+        var response;
 
+        for (let i = 0; i < 10; i++) {
+            response = await publishMessage();
+        }
         return {
             statusCode: 200,
             body: JSON.stringify({
