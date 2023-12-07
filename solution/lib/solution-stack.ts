@@ -8,7 +8,6 @@ import { SqsSubscription, EmailSubscription } from 'aws-cdk-lib/aws-sns-subscrip
 import { Alarm } from 'aws-cdk-lib/aws-cloudwatch';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { SSMParameterReader } from './ssm-parameter-reader';
-//import { Effect, PolicyStatement, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { Dashboard, GraphWidget, Metric, Dimension } from 'aws-cdk-lib/aws-cloudwatch';
 
 export class SolutionStack extends Stack {
@@ -111,7 +110,8 @@ export class SolutionStack extends Stack {
     new CfnOutput(this, 'SQS', {
       exportName: 'SQS',
       value: this.sqs.queueArn
-    })
+    });
+
 
   }
 
@@ -121,10 +121,6 @@ export class SolutionStack extends Stack {
         threshold: 1,
         evaluationPeriods: 1,
       })
-  }
-
-  private createEmailSubscription(topic: Topic) {
-    topic.addSubscription(new EmailSubscription('epatro+cache@gmail.com'));
   }
 
   private defineParameters(stackName: String) {
@@ -144,25 +140,6 @@ export class SolutionStack extends Stack {
     console.log ("retrieveSecondarySqsArn arn: ", arn);
     return arn;
   }
-
-  /*
-  private addSqsResourcePolicy(snsArn: String) {
-    const policy = new PolicyStatement(
-      {
-        effect: Effect.ALLOW,
-        actions: ["sqs:SendMessage"],
-        principals: [new ServicePrincipal('sns.amazonaws.com')],
-        resources: [this.sqs.queueArn],
-        conditions: {
-          "ArnEquals": {
-            "aws:SourceArn": snsArn
-          }
-        }
-      }
-    )
-    this.sqs.addToResourcePolicy(policy);
-  }
-  */
 
   private defineSNSParameter() {
     new StringParameter(this, 'SNSParameter', {
@@ -209,7 +186,7 @@ export class SolutionStack extends Stack {
         this.addMetric("us-east-2"),
         this.addMetric("us-west-2")
       ]
-  }));
+    }));
   };
 
 
@@ -226,14 +203,10 @@ constructor(scope: Construct, id: string, props?: StackProps) {
     this.createVpc();
     const dlq = this.createDLQ();
     this.createDLQAlarm(dlq);
-    const alarmTopic = this.createSns('AlarmTopic');
-
-    this.createEmailSubscription(alarmTopic);
     this.createSqs(dlq);
     
     const snsArn = this.retrieveSNSArn();
     console.log ("snsArn: ", snsArn);
-//    this.addSqsResourcePolicy(snsArn);
     
     console.log ("createVpc stackName: ", stackName);
     if (stackName == 'Primary') {
@@ -245,6 +218,12 @@ constructor(scope: Construct, id: string, props?: StackProps) {
       this.subscribeSqsToSns(secondaryQueue, dlq);
       this.defineSNSParameter();
       this.createDashboard();
+
+      new CfnOutput(this, 'TopicARN', {
+        exportName: 'TopicARN',
+        value: this.topic.topicArn
+      })
+  
 
     } else {
       console.log ("Skipping SNS creation");
