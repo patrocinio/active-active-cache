@@ -159,16 +159,12 @@ export class SolutionStack extends Stack {
     return arn;
   }
 
-  private addMetric(region: string) {
-    const dimension : Dimension = {
-      name: "Delay",
-      value: "Delay"
-    }
-
+  private addMetric(region: string, statistic: string) {
     return new Metric({
       region: region,
       namespace: "Cacher",
       metricName: "Cacher/Delay",
+      statistic: statistic,
       dimensionsMap: {
         "Delay": "Delay"
       }
@@ -181,10 +177,12 @@ export class SolutionStack extends Stack {
     });
 
     dashboard.addWidgets(new GraphWidget({
-      title: "Cache Delay 4",
+      title: "Cache Delay",
       left: [
-        this.addMetric("us-east-2"),
-        this.addMetric("us-west-2")
+        this.addMetric("us-east-2", "Average"),
+        this.addMetric("us-west-2", "Average"),
+        this.addMetric("us-east-2", "p99"),
+        this.addMetric("us-west-2", "p99")
       ]
     }));
   };
