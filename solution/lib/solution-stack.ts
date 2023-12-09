@@ -107,12 +107,6 @@ export class SolutionStack extends Stack {
       value: this.sqs.queueUrl
     });
 
-    new CfnOutput(this, 'SQS', {
-      exportName: 'SQS',
-      value: this.sqs.queueArn
-    });
-
-
   }
 
   private createDLQAlarm (dlq: Queue) {
