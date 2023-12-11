@@ -17,9 +17,6 @@ add_to_resource_policy: add_to_resource_policy_primary add_to_resource_policy_se
 arch:
 	cd architecture; java -jar plantuml-1.2023.11.jar Architecture.puml
 
-auth_load_test:
-	ab -n 1000 $(AUTH_URL)
-
 bootstrap:
 	cd solution; cdk bootstrap
 
@@ -67,9 +64,9 @@ find_query_url: set_region_primary
 	$(SET_QUERY_URL)
 	@echo Query URL: $(QUERY_URL)
 
-GET_PRIMARY_QUEUE_ARN = $(shell aws cloudformation describe-stacks --stack-name Primary --output json | jq -r '.Stacks[0].Outputs[] | select (.OutputKey == "CardAuthQueueARN").OutputValue')
+GET_PRIMARY_QUEUE_ARN = $(shell aws cloudformation describe-stacks --stack-name Primary --output json | jq -r '.Stacks[0].Outputs[] | select (.OutputKey == "QueueARN").OutputValue')
 SET_PRIMARY_QUEUE_ARN = $(eval PRIMARY_QUEUE_ARN=$(GET_PRIMARY_QUEUE_ARN))
-GET_PRIMARY_QUEUE_URL = $(shell aws cloudformation describe-stacks --stack-name Primary --output json | jq -r '.Stacks[0].Outputs[] | select (.OutputKey == "CardAuthQueueURL").OutputValue')
+GET_PRIMARY_QUEUE_URL = $(shell aws cloudformation describe-stacks --stack-name Primary --output json | jq -r '.Stacks[0].Outputs[] | select (.OutputKey == "QueueURL").OutputValue')
 SET_PRIMARY_QUEUE_URL = $(eval PRIMARY_QUEUE_URL=$(GET_PRIMARY_QUEUE_URL))
 
 find_primary_queue_info: set_region_primary
@@ -80,9 +77,9 @@ find_primary_queue_info: set_region_primary
 	$(SET_TOPIC_ARN)
 	echo Topic ARN: $(TOPIC_ARN)
 
-GET_SECONDARY_QUEUE_ARN = $(shell aws cloudformation describe-stacks --stack-name Secondary --output json | jq '.Stacks[0].Outputs[] | select (.OutputKey == "CardAuthQueueARN").OutputValue')
+GET_SECONDARY_QUEUE_ARN = $(shell aws cloudformation describe-stacks --stack-name Secondary --output json | jq '.Stacks[0].Outputs[] | select (.OutputKey == "QueueARN").OutputValue')
 SET_SECONDARY_QUEUE_ARN = $(eval SECONDARY_QUEUE_ARN=$(GET_SECONDARY_QUEUE_ARN))
-GET_SECONDARY_QUEUE_URL = $(shell aws cloudformation describe-stacks --stack-name Secondary --output json | jq '.Stacks[0].Outputs[] | select (.OutputKey == "CardAuthQueueURL").OutputValue')
+GET_SECONDARY_QUEUE_URL = $(shell aws cloudformation describe-stacks --stack-name Secondary --output json | jq '.Stacks[0].Outputs[] | select (.OutputKey == "QueueURL").OutputValue')
 SET_SECONDARY_QUEUE_URL = $(eval SECONDARY_QUEUE_URL=$(GET_SECONDARY_QUEUE_URL))
 
 find_secondary_queue_info: set_region_secondary
@@ -105,19 +102,19 @@ find_secondary_redis_url: set_region_secondary
 	  echo Redis: $(SECONDARY_REDIS_ADDRESS)
 
 
-GET_AUTH_ID=$(shell aws apigateway get-rest-apis --output json | jq '.items[] | select (.name == "auth-loader").id')
-SET_AUTH_URL = $(eval AUTH_URL=https://$(GET_AUTH_ID).execute-api.$(REGION).amazonaws.com/Prod/)
+GET_LOADER_ID=$(shell aws apigateway get-rest-apis --output json | jq '.items[] | select (.name == "loader").id')
+SET_LOADER_URL = $(eval LOADER_URL=https://$(GET_LOADER_ID).execute-api.$(REGION).amazonaws.com/Prod/)
 
-get_auth_url: set_region_primary get_region
-	$(SET_AUTH_URL)
-	echo Auth ID: $(AUTH_URL)
+get_loader_url: set_region_primary get_region
+	$(SET_LOADER_URL)
+	echo Loader ID: $(LOADER_URL)
 
 GET_REPEATER_ID=$(shell aws apigateway get-rest-apis --output json | jq '.items[] | select (.name == "repeater").id')
 SET_REPEATER_URL = $(eval REPEATER_URL=https://$(GET_REPEATER_ID).execute-api.$(REGION).amazonaws.com/Prod/)
 
 get_repeater_url: set_region_primary get_region
 	$(SET_REPEATER_URL)
-	echo Auth ID: $(REPEATER_URL)
+	echo Loader ID: $(REPEATER_URL)
 
 GET_REGION=$(shell aws configure list | grep region | awk '{print $$2}')
 SET_REGION=$(eval REGION=$(GET_REGION))
@@ -137,13 +134,16 @@ init:
 	cd solution; cdk init app --language=typescript
 
 loader_build: 
-	cd auth_loader; sam build
+	cd loader; sam build
 
 loader_delete:
-	cd auth_loader; sam delete --no-prompts
+	cd loader; sam delete --no-prompts
 
 loader_deploy: set_region_primary loader_build get_topic_arn
-	cd auth_loader; sam deploy --parameter-overrides TopicARN=$(TOPIC_ARN)
+	cd loader; sam deploy --parameter-overrides TopicARN=$(TOPIC_ARN)
+
+load_test: get_loader_url
+	ab -n 1000 $(LOADER_URL)
 
 query_build:
 	cd elasticache_query; sam build
@@ -154,7 +154,7 @@ query_delete:
 query_deploy: query_build find_primary_redis_url
 	cd elasticache_query; sam deploy --parameter-overrides RedisURL=$(PRIMARY_REDIS_ADDRESS)
 
-repeat_auth: get_repeater_url
+repeat_load: get_repeater_url
 	curl $(REPEATER_URL)/repeat
 
 repeater_build: 
@@ -163,14 +163,14 @@ repeater_build:
 repeater_delete:
 	cd repeater; sam delete --no-prompts
 
-repeater_deploy: set_region_primary repeater_build get_auth_url
-	cd repeater; sam deploy --parameter-overrides AuthURL=$(AUTH_URL)
+repeater_deploy: set_region_primary repeater_build get_loader_url
+	cd repeater; sam deploy --parameter-overrides LoaderURL=$(LOADER_URL)
 
 run_query: set_region_primary find_query_url
 	curl $(QUERY_URL)
 
-send_auth: get_auth_url
-	curl $(AUTH_URL)/send
+send_load: get_loader_url
+	curl $(LOADER_URL)/send
 
 set_region_primary:
 	aws configure set default.region us-west-2

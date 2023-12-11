@@ -15,7 +15,7 @@ Globals:
     TracingEnabled: true
 
 Parameters:
-  AuthURL:
+  LoaderURL:
     Type: String
     Description: Auth URL
 
@@ -41,7 +41,7 @@ Resources:
             Method: get
       Environment:
         Variables:
-          AUTH_URL: !Ref AuthURL
+          AUTH_URL: !Ref LoaderURL
 
 
   ApplicationResourceGroup:

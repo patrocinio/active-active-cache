@@ -18,10 +18,10 @@
 
 left to right direction
 
-APIGateway(auth_loader_api, "Authorization Loader", "API Gateway")
-LambdaLambdaFunction(auth_loader_lambda, "Authorization Loader", "Lambda")
-APIGateway(auth_repeater_api, "Authorization Repeater API", "API Gateway")
-LambdaLambdaFunction(auth_repeater_lambda, "Authorization Repeater", "Lambda")
+APIGateway(loader_api, "Loader", "API Gateway")
+LambdaLambdaFunction(loader_lambda, "Loader", "Lambda")
+APIGateway(repeater_api, "Repeater API", "API Gateway")
+LambdaLambdaFunction(repeater_lambda, "Repeater", "Lambda")
 
 RegionGroup(us-east-1, "us-east-1") {
     SimpleNotificationServiceTopic(sns, "SNS", "SNS")
@@ -38,10 +38,10 @@ RegionGroup(us-west-2, "us-west-2") {
     ElastiCacheElastiCacheforRedis(westCache, "us-west-2 Cache", "Redis")
 }
 
-auth_loader_api --> auth_loader_lambda
-auth_loader_lambda --> sns
-auth_repeater_api --> auth_repeater_lambda
-auth_repeater_lambda --> auth_loader_api
+loader_api --> loader_lambda
+loader_lambda --> sns
+repeater_api --> repeater_lambda
+repeater_lambda --> loader_api
 sns --> eastQueue
 sns --> westQueue
 

@@ -97,13 +97,13 @@ export class SolutionStack extends Stack {
       value: this.securityGroup.securityGroupId
     });
 
-    new CfnOutput(this, 'CardAuthQueueARN', {
-      exportName: 'CardAuthQueueARN',
+    new CfnOutput(this, 'QueueARN', {
+      exportName: 'QueueARN',
       value: this.sqs.queueArn
     });
 
-    new CfnOutput(this, 'CardAuthQueueURL', {
-      exportName: 'CardAuthQueueURL',
+    new CfnOutput(this, 'QueueURL', {
+      exportName: 'QueueURL',
       value: this.sqs.queueUrl
     });
 
