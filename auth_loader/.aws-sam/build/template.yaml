@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'auth-loader
+
+  Sends authorization to SNS
+
+  '
+Globals:
+  Function:
+    Timeout: 3
+Resources:
+  LoaderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: LoaderFunction
+      Handler: app.send
+      Runtime: nodejs18.x
+      Timeout: 300
+      AutoPublishAlias: live
+      Architectures:
+      - x86_64
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /send
+            Method: get
+      Policies:
+      - AmazonSNSFullAccess
+      VpcConfig:
+        SecurityGroupIds:
+        - Fn::ImportValue: SecurityGroupId
+        SubnetIds:
+        - Fn::ImportValue: CardAuthPrivateSubnet1
+      Environment:
+        Variables:
+          TOPIC_ARN: arn:aws:sns:us-west-2:464940127111:Primary-Message251322C6-WSvpVni84A4S
+          NODE_OPTIONS: ' --enable-source-maps'
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        EntryPoints:
+        - app.ts
+        Minify: true
+        Sourcemap: true
+        Target: es2020
+      SamResourceId: LoaderFunction
+Outputs:
+  HelloWorldApi:
+    Description: API Gateway endpoint URL for Prod stage for Hello World function
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/send/
+  HelloWorldFunction:
+    Description: Loader Function ARN
+    Value:
+      Fn::GetAtt:
+      - LoaderFunction
+      - Arn
