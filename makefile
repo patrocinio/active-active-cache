@@ -21,7 +21,7 @@ bootstrap:
 	cd solution; cdk bootstrap
 
 build:
-	cd solution; npm run build
+	cd solution; npm install; npm run build
 
 cacher_build: 
 	cd cacher; sam build
@@ -191,4 +191,11 @@ solution_deploy_secondary_destroy:
 
 synth:
 	cd solution; cdk synth
+
+pack:
+	rm -f architecture/plantuml-1.2023.11.jar
+	rm -rf node_modules/
+	rm -rf */.aws-sam/
+	rm active-active-cache.zip
+	zip -r active-active-cache.zip *
 

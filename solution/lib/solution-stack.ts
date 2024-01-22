@@ -3,18 +3,21 @@ import { Construct } from 'constructs';
 import { Port, Peer, SecurityGroup, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Topic } from 'aws-cdk-lib/aws-sns';
 import { Queue, IQueue } from 'aws-cdk-lib/aws-sqs';
-import { aws_elasticache as ElastiCache } from 'aws-cdk-lib';
-import { SqsSubscription, EmailSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
+import { CfnReplicationGroup, CfnSubnetGroup, CfnUser } from 'aws-cdk-lib/aws-elasticache';
+import { SqsSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
 import { Alarm } from 'aws-cdk-lib/aws-cloudwatch';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { SSMParameterReader } from './ssm-parameter-reader';
-import { Dashboard, GraphWidget, Metric, Dimension } from 'aws-cdk-lib/aws-cloudwatch';
+import { Dashboard, GraphWidget, Metric } from 'aws-cdk-lib/aws-cloudwatch';
+
+const Engine = "redis";
 
 export class SolutionStack extends Stack {
   private vpc: Vpc;
   private topic: Topic;
   private sqs: Queue;
   private securityGroup: SecurityGroup;
+  private elastiCache: CfnReplicationGroup;
 
   private createVpc() {
     this.vpc = new Vpc (this, 'cache');
@@ -53,7 +56,7 @@ export class SolutionStack extends Stack {
       subnetIds.push(subnet.subnetId);
     }
 
-    const subnetGroup = new ElastiCache.CfnSubnetGroup(this, "ElastiCacheSubnetGroup", {
+    const subnetGroup = new CfnSubnetGroup(this, "ElastiCacheSubnetGroup", {
       cacheSubnetGroupName: groupName,
       subnetIds: subnetIds,
       description: "ElastiCache Subnet Group"
@@ -70,11 +73,11 @@ export class SolutionStack extends Stack {
 
     console.log ("createElasticCache securityGroup: ", this.securityGroup);
 
-    new ElastiCache.CfnReplicationGroup(this, "ReplicationGroup", {
+    this.elastiCache = new CfnReplicationGroup(this, "ReplicationGroup", {
       replicationGroupDescription: "Elastic Cache Replication Group",
       numCacheClusters: 1,
       automaticFailoverEnabled: false,
-      engine: 'redis',
+      engine: Engine,
       cacheNodeType: 'cache.m7g.large',
       cacheSubnetGroupName: subnetGroup.ref,
       securityGroupIds:[this.securityGroup.securityGroupId],
@@ -181,6 +184,18 @@ export class SolutionStack extends Stack {
     }));
   };
 
+  private createUser() {
+    new CfnUser(this, "RedisUser", {
+      engine: Engine,
+      userId: "redis-user",
+      userName: "redis-user",
+      accessString: "on ~* +@all",
+      authenticationMode: {
+        "Type": "iam"
+      }
+    });
+  }
+
 
 
 constructor(scope: Construct, id: string, props?: StackProps) {
@@ -222,6 +237,7 @@ constructor(scope: Construct, id: string, props?: StackProps) {
     }
 
     this.createElastiCache(stackName);
+    this.createUser();
     this.defineOutput();
     this.defineParameters(stackName);
   }

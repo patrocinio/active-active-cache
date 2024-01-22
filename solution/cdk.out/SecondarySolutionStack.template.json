@@ -641,8 +641,8 @@
       "Arn"
      ]
     },
-    "Create": "{\"service\":\"SSM\",\"action\":\"getParameter\",\"parameters\":{\"Name\":\"SNS\"},\"region\":\"us-west-2\",\"physicalResourceId\":{\"id\":\"1702310921290\"}}",
-    "Update": "{\"service\":\"SSM\",\"action\":\"getParameter\",\"parameters\":{\"Name\":\"SNS\"},\"region\":\"us-west-2\",\"physicalResourceId\":{\"id\":\"1702310921290\"}}",
+    "Create": "{\"service\":\"SSM\",\"action\":\"getParameter\",\"parameters\":{\"Name\":\"SNS\"},\"region\":\"us-west-2\",\"physicalResourceId\":{\"id\":\"1705960607303\"}}",
+    "Update": "{\"service\":\"SSM\",\"action\":\"getParameter\",\"parameters\":{\"Name\":\"SNS\"},\"region\":\"us-west-2\",\"physicalResourceId\":{\"id\":\"1705960607303\"}}",
     "InstallLatestAwsSdk": false
    },
    "DependsOn": [
@@ -823,6 +823,21 @@
     "aws:cdk:path": "SecondarySolutionStack/ReplicationGroup"
    }
   },
+  "RedisUser": {
+   "Type": "AWS::ElastiCache::User",
+   "Properties": {
+    "AccessString": "on ~* +@all",
+    "AuthenticationMode": {
+     "Type": "iam"
+    },
+    "Engine": "redis",
+    "UserId": "redis-user",
+    "UserName": "redis-user"
+   },
+   "Metadata": {
+    "aws:cdk:path": "SecondarySolutionStack/RedisUser"
+   }
+  },
   "SQSParameter75BC1BCA": {
    "Type": "AWS::SSM::Parameter",
    "Properties": {
@@ -843,7 +858,7 @@
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/21S0W7CMAz8Ft5DBuwLCtoQL1tXJl6Rm3oQaJMucahQ1X+fGyidtKkPPjvW5e7ShZzPZ3I+gcZPVXGeljqX7ZZAnQWP9i2qhWx3tRKrL7NLVyINeanVNuQGqZ+NKLOB8BPyEsf5OEu8t0oDaWseyz142aR9eQNaA2EDV5E6fWE4Em8MoWM8LNyU3LuEWOuxQkNiiyo4Tde1s6GOGn4POuG/vWw/AoZ4cQSdUKUNRQOkjrJNSnBVfxZBJ0qo8gI4Dm0OJZI1r8Go6OABeHnAndBQyTa1nE8UeUeZvSXSVxbxvAfvkbxM+sK9XAZ1RlqCR4EleNKKHaFsHyk+DGVYM2UMcfDkq/65HCtMwUGFHFW8e2i6TmTobXCKRQRPthrbnvDfo9TZiy6YKWrkv+HA/ELFnb27L7GDxv+lfA9UB+qEsQXKk3+6LGaSv8nJaz11wZCuUGa3+gMdssdTfQIAAA=="
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/21SwU7DMAz9Fu5ZYOPCdUww7QKlg10nNzWQrU1G7KxCVf8dN9taJDj5+cV6eX7JTE9vpnp6BQ1NTLmfVLbQ7ZrB7JVQ2xbNTLebg1GLd7fJFiqLRWXNOhYOuedGlPvI+ApFhSM/cnMibyyw9W4Y7sHDKuvLE/ASGBv4VlmwR4Gj8MoxBsGXgZOTczdn8fpZo2O1RhOD5e9l8PGQPPwmOkVfpNuXiDFdnECnTOVj2QCbT93OKwh1f5ZApyqoixIkDus+KmTvHqMzaYMByPAFd8pCrdvMSz7J5Bnl/pRIX8XE7RaIkEnP+yK9vo9mj3wPhAorILZGNkLdDikOC+V4EMkU4sC9EQaRpbp/tiBOMwhQo0SWPFyarlM5ko/BiJlI7Oux7YX/PcqCP9pSlJJX+RUfoq9MmtmG85Bs0tBfyefIh8idcr5EvaPr4+xG38lH25G1kxAd2xp1fqo/xSFqF4UCAAA="
    },
    "Metadata": {
     "aws:cdk:path": "SecondarySolutionStack/CDKMetadata/Default"

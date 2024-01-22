@@ -746,8 +746,8 @@
       "Arn"
      ]
     },
-    "Create": "{\"service\":\"SSM\",\"action\":\"getParameter\",\"parameters\":{\"Name\":\"SNS\"},\"region\":\"us-west-2\",\"physicalResourceId\":{\"id\":\"1702310921248\"}}",
-    "Update": "{\"service\":\"SSM\",\"action\":\"getParameter\",\"parameters\":{\"Name\":\"SNS\"},\"region\":\"us-west-2\",\"physicalResourceId\":{\"id\":\"1702310921248\"}}",
+    "Create": "{\"service\":\"SSM\",\"action\":\"getParameter\",\"parameters\":{\"Name\":\"SNS\"},\"region\":\"us-west-2\",\"physicalResourceId\":{\"id\":\"1705960607266\"}}",
+    "Update": "{\"service\":\"SSM\",\"action\":\"getParameter\",\"parameters\":{\"Name\":\"SNS\"},\"region\":\"us-west-2\",\"physicalResourceId\":{\"id\":\"1705960607266\"}}",
     "InstallLatestAwsSdk": false
    },
    "DependsOn": [
@@ -872,8 +872,8 @@
       "Arn"
      ]
     },
-    "Create": "{\"service\":\"SSM\",\"action\":\"getParameter\",\"parameters\":{\"Name\":\"SecondarySQS\"},\"region\":\"us-east-2\",\"physicalResourceId\":{\"id\":\"1702310921274\"}}",
-    "Update": "{\"service\":\"SSM\",\"action\":\"getParameter\",\"parameters\":{\"Name\":\"SecondarySQS\"},\"region\":\"us-east-2\",\"physicalResourceId\":{\"id\":\"1702310921274\"}}",
+    "Create": "{\"service\":\"SSM\",\"action\":\"getParameter\",\"parameters\":{\"Name\":\"SecondarySQS\"},\"region\":\"us-east-2\",\"physicalResourceId\":{\"id\":\"1705960607286\"}}",
+    "Update": "{\"service\":\"SSM\",\"action\":\"getParameter\",\"parameters\":{\"Name\":\"SecondarySQS\"},\"region\":\"us-east-2\",\"physicalResourceId\":{\"id\":\"1705960607286\"}}",
     "InstallLatestAwsSdk": false
    },
    "DependsOn": [
@@ -1051,6 +1051,21 @@
     "aws:cdk:path": "PrimarySolutionStack/ReplicationGroup"
    }
   },
+  "RedisUser": {
+   "Type": "AWS::ElastiCache::User",
+   "Properties": {
+    "AccessString": "on ~* +@all",
+    "AuthenticationMode": {
+     "Type": "iam"
+    },
+    "Engine": "redis",
+    "UserId": "redis-user",
+    "UserName": "redis-user"
+   },
+   "Metadata": {
+    "aws:cdk:path": "PrimarySolutionStack/RedisUser"
+   }
+  },
   "SQSParameter75BC1BCA": {
    "Type": "AWS::SSM::Parameter",
    "Properties": {
@@ -1071,7 +1086,7 @@
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/21Sy27jMAz8lt4Vtcl+QfrYopdd1yl6DWiZbdTYklekEgSG/72UnNhdtDAQzown4pDySi+XN3p5BUdamHq/aGyl+w2D2SuRtj2ale5fO6Pu3txrcaeKWDXWbGLlkJM2o9JHxheoGpz1WVsTeWOBrXeTOYGHpyKVP8CPwHiEkyqCPQicD35yjEHwxTAmObM1S9Zdi47VBk0Mlk+PwccuZ/gqDIr+ke6fI8bceAT5t/Ay0mkSzzTjWyAclGl8rI/AZqf7dQOhTd4R3APtKg+hTtJEpJmTZjIDmWC7y9T/8Rff2bzWDAbVQFvVIH+y7r1B9u53dCY7JyDmCx6UhVb3c/QzKv24/1Qlxa8tECGTXqciXN9Gs0dOcymiNt11kIYFBGhR9pyPupBBYQPE1siKUffTtU4bLrGTrvlWxyUPqkTyMRgJEYl9O9Pk/vFVEfzB1tI6Z5Rv710CKZM923A2yQRH+n7k38hd5EE5X6P+oOvD6kbLc/VB1i5CdGxb1OVYPwEZQx5o6wIAAA=="
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/21Sy3LbMAz8ltxpNnYvvTqPenJpVTnN1QNRaMxYIlUCtMej0b8XpGypmeQi7K4AYgFypZe3S728gRMtTH1YNLbS/ZbBHJRIux7NSvcvnVH3f9xLca+KWDXWbGPlkJM2o9JHxmeoGpz1WVsTeWOBrXdTcgKPT0UKP4A3wHiCsyqCPQqcD35yjEHwNWF0cmFrFq/7Fh2rLZoYLJ83wccue/hfGBT9Jd3/ihhz4xHkb+FlpPMkXmjGd0A4KNP4WJ+AzV736wZCm3JH8AC0rzyEOkkTkWZOmskMZILtrlO/48++s3mtGQyqgbaqQYqse22QvfsencmZE5DkKx6UhVb3s/ULKv24/xTFxdcdECGTXqcgXN9Fc0BOcymiNt11kIYFBGhR9pyPupJBYQPE1siKUffTtU4bLrGTrvlWJ+03SeGgSiQfgxEzkdi3M01Vn/4qgj/aWixkr/IGX8WYMjlnFy5JMsmJPh75M3IXeVDO16jf6Mtxdau/ybN+I2sXITq2LepyjP8AO5DL2/MCAAA="
    },
    "Metadata": {
     "aws:cdk:path": "PrimarySolutionStack/CDKMetadata/Default"

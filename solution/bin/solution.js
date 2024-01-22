@@ -1,0 +1,16 @@
+#!/usr/bin/env node
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+require("source-map-support/register");
+const cdk = require("aws-cdk-lib");
+const solution_stack_1 = require("../lib/solution-stack");
+const app = new cdk.App();
+new solution_stack_1.SolutionStack(app, 'PrimarySolutionStack', {
+    env: { region: 'us-west-2' },
+    stackName: 'Primary'
+});
+new solution_stack_1.SolutionStack(app, 'SecondarySolutionStack', {
+    env: { region: 'us-east-2' },
+    stackName: 'Secondary'
+});
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoic29sdXRpb24uanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJzb2x1dGlvbi50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7QUFDQSx1Q0FBcUM7QUFDckMsbUNBQW1DO0FBQ25DLDBEQUFzRDtBQUV0RCxNQUFNLEdBQUcsR0FBRyxJQUFJLEdBQUcsQ0FBQyxHQUFHLEVBQUUsQ0FBQztBQUMxQixJQUFJLDhCQUFhLENBQUMsR0FBRyxFQUFFLHNCQUFzQixFQUFFO0lBQzdDLEdBQUcsRUFBRSxFQUFFLE1BQU0sRUFBRSxXQUFXLEVBQUU7SUFDNUIsU0FBUyxFQUFFLFNBQVM7Q0FDckIsQ0FBQyxDQUFDO0FBRUgsSUFBSSw4QkFBYSxDQUFDLEdBQUcsRUFBRSx3QkFBd0IsRUFBRTtJQUMvQyxHQUFHLEVBQUUsRUFBRSxNQUFNLEVBQUUsV0FBVyxFQUFFO0lBQzVCLFNBQVMsRUFBRSxXQUFXO0NBQ3ZCLENBQUMsQ0FBQSIsInNvdXJjZXNDb250ZW50IjpbIiMhL3Vzci9iaW4vZW52IG5vZGVcbmltcG9ydCAnc291cmNlLW1hcC1zdXBwb3J0L3JlZ2lzdGVyJztcbmltcG9ydCAqIGFzIGNkayBmcm9tICdhd3MtY2RrLWxpYic7XG5pbXBvcnQgeyBTb2x1dGlvblN0YWNrIH0gZnJvbSAnLi4vbGliL3NvbHV0aW9uLXN0YWNrJztcblxuY29uc3QgYXBwID0gbmV3IGNkay5BcHAoKTtcbm5ldyBTb2x1dGlvblN0YWNrKGFwcCwgJ1ByaW1hcnlTb2x1dGlvblN0YWNrJywge1xuICBlbnY6IHsgcmVnaW9uOiAndXMtd2VzdC0yJyB9LFxuICBzdGFja05hbWU6ICdQcmltYXJ5J1xufSk7XG5cbm5ldyBTb2x1dGlvblN0YWNrKGFwcCwgJ1NlY29uZGFyeVNvbHV0aW9uU3RhY2snLCB7XG4gIGVudjogeyByZWdpb246ICd1cy1lYXN0LTInIH0sXG4gIHN0YWNrTmFtZTogJ1NlY29uZGFyeSdcbn0pIl19

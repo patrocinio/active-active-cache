@@ -1,5 +1,5 @@
 {
-  "version": "35.0.0",
+  "version": "34.0.0",
   "artifacts": {
     "PrimarySolutionStack.assets": {
       "type": "cdk:asset-manifest",
@@ -18,7 +18,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-us-west-2",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-us-west-2",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-us-west-2/4e3d90ad2cf25036354f01eb4465f15fa083f31e9e04d3190b131a6cb4a7476a.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-us-west-2/5b979449c0bd3176179ea4f1a24d6eb65bc2553c908345cdde6512e6c84dbba8.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -311,6 +311,12 @@
             "data": "ReplicationGroup"
           }
         ],
+        "/PrimarySolutionStack/RedisUser": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RedisUser"
+          }
+        ],
         "/PrimarySolutionStack/CardAuthPrivateSubnet1": [
           {
             "type": "aws:cdk:logicalId",
@@ -379,7 +385,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-us-east-2",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-us-east-2",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-us-east-2/357b11f270b1a258a3cc061fa03eba67f26a8bcee2bc3de4e0de85f29aeabf6b.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-us-east-2/5ea1fd0c19678c9bcaf5f4083db023c391d25e1e1fd79034aeba9bb0bb14a2ea.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -610,6 +616,12 @@
           {
             "type": "aws:cdk:logicalId",
             "data": "ReplicationGroup"
+          }
+        ],
+        "/SecondarySolutionStack/RedisUser": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RedisUser"
           }
         ],
         "/SecondarySolutionStack/CardAuthPrivateSubnet1": [
